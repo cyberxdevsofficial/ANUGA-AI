@@ -1,79 +1,72 @@
 const chatBox = document.getElementById('chatBox');
 
-// Auto welcome typing
-function autoWelcome() {
-  const welcome = "WELCOME TO ANUGA AI";
-  typeMessage('ai', welcome, 120);
+function autoWelcome(){
+  typeMessage('ai',"WELCOME TO ANUGA AI",120);
 }
 
-// Add message instantly (used for user)
-function addMessage(sender, message) {
-  const div = document.createElement('div');
-  div.className = 'message ' + sender;
-  div.textContent = message;
+function addMessage(sender,msg){
+  const div=document.createElement('div');
+  div.className='message '+sender;
+  div.textContent=msg;
   chatBox.appendChild(div);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  chatBox.scrollTop=chatBox.scrollHeight;
 }
 
-// Type message character by character (for AI)
-function typeMessage(sender, text, speed = 50) {
-  const div = document.createElement('div');
-  div.className = 'message ' + sender + ' typing';
+function typeMessage(sender,text,speed=40){
+  const div=document.createElement('div');
+  div.className='message '+sender+' typing';
   chatBox.appendChild(div);
 
-  let i = 0;
-  function typeChar() {
-    if (i < text.length) {
-      div.textContent += text.charAt(i);
+  let i=0;
+  function type(){
+    if(i<text.length){
+      div.textContent+=text.charAt(i);
       i++;
-      chatBox.scrollTop = chatBox.scrollHeight;
-      setTimeout(typeChar, speed);
-    } else {
+      chatBox.scrollTop=chatBox.scrollHeight;
+      setTimeout(type,speed);
+    }else{
       div.classList.remove('typing');
     }
   }
-  typeChar();
+  type();
 }
 
-// Send query
-async function sendQuery() {
-  const input = document.getElementById('queryInput');
-  const text = input.value.trim();
-  if (!text) return;
+async function sendQuery(){
+  const input=document.getElementById('queryInput');
+  const text=input.value.trim();
+  if(!text) return;
 
-  addMessage('user', text);
-  input.value = '';
+  addMessage('user',text);
+  input.value='';
 
-  // Show AI typing placeholder
-  const typingIndicator = document.createElement('div');
-  typingIndicator.className = 'message ai typing';
-  typingIndicator.textContent = "Anuga AI is typing...";
-  chatBox.appendChild(typingIndicator);
-  chatBox.scrollTop = chatBox.scrollHeight;
+  const loader=document.createElement('div');
+  loader.className='message ai typing';
+  loader.textContent="Anuga AI is typing...";
+  chatBox.appendChild(loader);
 
-  try {
+  try{
     let reply;
-    const lowerText = text.toLowerCase();
+    const lower=text.toLowerCase();
 
-    // Custom owner response
-    if (lowerText.includes("owner") || lowerText.includes("who is your owner") || lowerText.includes("your owner")) {
-      reply = "My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills. He created me to assist with information and provide AI-powered guidance.";
-    } else {
-      const apiUrl = "https://www.movanest.xyz/v2/powerbrainai?query=" + encodeURIComponent(text);
-      const response = await fetch(apiUrl);
-      const result = await response.json();
-      reply = (result && result.results) ? result.results : "No response received.";
+    if(lower.includes("owner")){
+      reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills.";
+    }else{
+      const res = await fetch(
+        "https://dtz-ai-api-new.vercel.app/api/ai/gemini?prompt=" +
+        encodeURIComponent(text)
+      );
+
+      const data = await res.json();
+      reply = data.data || "No response received.";
     }
 
-    // Remove placeholder and type AI response
-    typingIndicator.remove();
-    typeMessage('ai', reply, 30); // 30ms per character typing
+    loader.remove();
+    typeMessage('ai',reply,28);
 
-  } catch (err) {
-    typingIndicator.remove();
-    typeMessage('ai', "Error connecting to Anuga AI API.", 30);
-    console.error(err);
+  }catch(e){
+    loader.remove();
+    typeMessage('ai',"Error connecting to Gemini API.",28);
   }
 }
 
-window.onload = autoWelcome;
+window.onload=autoWelcome;
