@@ -8,115 +8,163 @@
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
-<!-- Tailwind CDN for easy styling -->
+<!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-  body {
-    font-family: 'Roboto', sans-serif;
-    background: linear-gradient(135deg, #6C63FF, #5DE7A4);
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #6C63FF, #5DE7A4);
+  position: relative;
+}
 
-  .chat-container {
-    background: #ffffffdd;
-    backdrop-filter: blur(10px);
-    width: 100%;
-    max-width: 450px;
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  }
+/* Animated Background Circles */
+.background-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.2;
+  animation: float 15s infinite;
+}
 
-  .chat-box {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-  }
+.background-circle:nth-child(1) {
+  width: 300px; height: 300px; background: #ffffff; top: -50px; left: -50px;
+}
+.background-circle:nth-child(2) {
+  width: 500px; height: 500px; background: #fffa; bottom: -100px; right: -100px;
+  animation-duration: 20s;
+}
+.background-circle:nth-child(3) {
+  width: 200px; height: 200px; background: #0002; top: 50%; left: 50%;
+  animation-duration: 25s;
+}
 
-  .message {
-    margin: 8px 0;
-    padding: 10px 15px;
-    border-radius: 20px;
-    max-width: 80%;
-    word-wrap: break-word;
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideIn 0.3s forwards;
-  }
+@keyframes float {
+  0% { transform: translateY(0px) translateX(0px); }
+  50% { transform: translateY(50px) translateX(50px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}
 
-  .user { 
-    background-color: #6C63FF;
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 0;
-  }
+.chat-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 500px;
+  height: 80vh;
+  margin: auto;
+  margin-top: 5vh;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+}
 
-  .ai { 
-    background-color: #5DE7A4;
-    color: white;
-    align-self: flex-start;
-    border-bottom-left-radius: 0;
-  }
+.chat-box {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
 
-  @keyframes slideIn {
-    to { opacity: 1; transform: translateY(0); }
-  }
+.message {
+  margin: 8px 0;
+  padding: 10px 15px;
+  border-radius: 25px;
+  max-width: 80%;
+  word-wrap: break-word;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideIn 0.3s forwards;
+}
 
-  .input-container {
-    display: flex;
-    padding: 10px;
-    background: rgba(255,255,255,0.9);
-    border-top: 1px solid #ddd;
-  }
+.user { 
+  background-color: #6C63FF;
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
 
-  .input-container input {
-    flex: 1;
-    padding: 10px 15px;
-    border-radius: 50px;
-    border: 1px solid #ccc;
-    font-family: 'JetBrains Mono', monospace;
-    outline: none;
-    transition: all 0.2s;
-  }
+.ai { 
+  background-color: #5DE7A4;
+  color: white;
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
 
-  .input-container input:focus {
-    border-color: #6C63FF;
-    box-shadow: 0 0 5px #6C63FF66;
-  }
+@keyframes slideIn {
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .input-container button {
-    margin-left: 10px;
-    background-color: #6C63FF;
-    color: white;
-    border: none;
-    padding: 0 20px;
-    border-radius: 50px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
+.input-container {
+  display: flex;
+  padding: 10px;
+  background: rgba(255,255,255,0.2);
+  border-top: 1px solid #ddd;
+}
 
-  .input-container button:hover {
-    background-color: #5a50e0;
-  }
+.input-container input {
+  flex: 1;
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: 1px solid #ccc;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: all 0.2s;
+}
 
-  /* Scrollbar Styling */
-  .chat-box::-webkit-scrollbar {
-    width: 6px;
-  }
-  .chat-box::-webkit-scrollbar-thumb {
-    background: #6C63FF66;
-    border-radius: 10px;
-  }
+.input-container input:focus {
+  border-color: #6C63FF;
+  box-shadow: 0 0 8px #6C63FF66;
+}
+
+.input-container button {
+  margin-left: 10px;
+  background-color: #6C63FF;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 50px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.input-container button:hover {
+  background-color: #5a50e0;
+}
+
+/* Scrollbar Styling */
+.chat-box::-webkit-scrollbar { width: 6px; }
+.chat-box::-webkit-scrollbar-thumb { background: #6C63FF66; border-radius: 10px; }
+
+/* Loading Spinner */
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #5DE7A4;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
+
+<!-- Animated Background Circles -->
+<div class="background-circle"></div>
+<div class="background-circle"></div>
+<div class="background-circle"></div>
 
 <div class="chat-container">
   <div id="chatBox" class="chat-box"></div>
@@ -136,11 +184,11 @@ async function sendQuery() {
   queryInput.value = '';
 
   const chatBox = document.getElementById('chatBox');
-  
-  // AI is typing indicator
+
+  // AI typing indicator
   const typingIndicator = document.createElement('div');
   typingIndicator.className = 'message ai';
-  typingIndicator.textContent = "Anuga AI is typing...";
+  typingIndicator.innerHTML = "Anuga AI is typing <span class='spinner'></span>";
   chatBox.appendChild(typingIndicator);
   chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -151,16 +199,18 @@ async function sendQuery() {
     const response = await fetch(apiUrl);
     const result = await response.json();
 
-    // Remove typing indicator
     typingIndicator.remove();
 
-    const reply = result.answer || result.data || "No response received";
+    // Use the "results" field from API
+    let reply = "No response received.";
+    if(result && result.results) reply = result.results;
+
     addMessage('ai', reply);
 
   } catch (err) {
     console.error(err);
     typingIndicator.remove();
-    addMessage('ai', "Error connecting to Anuga AI API");
+    addMessage('ai', "Error connecting to Anuga AI API. Check your API endpoint or CORS.");
   }
 }
 
@@ -168,11 +218,11 @@ function addMessage(sender, message) {
   const chatBox = document.getElementById('chatBox');
   const div = document.createElement('div');
   div.className = 'message ' + sender;
-  div.textContent = message;
+  div.innerHTML = message;
   chatBox.appendChild(div);
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 </script>
 
 </body>
-</html>
+  </html>
