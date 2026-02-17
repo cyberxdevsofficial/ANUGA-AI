@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anuga AI Chat</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background-color: #f7f7f8;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .chat-container {
+    width: 100%;
+    max-width: 700px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 20px;
+    background-color: #6C63FF;
+    color: white;
+    font-weight: 600;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .chat-box {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .message {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideIn 0.3s forwards;
+  }
+
+  .user {
+    align-self: flex-end;
+    background-color: #6C63FF;
+    color: white;
+    border-bottom-right-radius: 0;
+  }
+
+  .ai {
+    align-self: flex-start;
+    background-color: #e5e5ea;
+    color: #333;
+    border-bottom-left-radius: 0;
+  }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .input-container {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    background-color: #fafafa;
+  }
+
+  .input-container input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .input-container input:focus {
+    border-color: #6C63FF;
+    box-shadow: 0 0 5px #6C63FF66;
+  }
+
+  .input-container button {
+    margin-left: 12px;
+    background-color: #6C63FF;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .input-container button:hover {
+    background-color: #5a50e0;
+  }
+
+  /* Typing animation */
+  .typing {
+    font-style: italic;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">Anuga AI</div>
+  <div id="chatBox" class="chat-box"></div>
+  <div class="input-container">
+    <input type="text" id="queryInput" placeholder="Ask Anuga AI..." />
+    <button onclick="sendQuery()">Send</button>
+  </div>
+</div>
+
+<script>
+const chatBox = document.getElementById('chatBox');
+
+// Auto-type welcome message
+function autoWelcome() {
+  const welcome = "WELCOME TO ANUGA AI";
+  let i = 0;
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'message ai typing';
+  chatBox.appendChild(msgDiv);
+
+  function typeChar() {
+    if(i < welcome.length){
+      msgDiv.textContent += welcome.charAt(i);
+      i++;
+      chatBox.scrollTop = chatBox.scrollHeight;
+      setTimeout(typeChar, 100);
+    } else {
+      msgDiv.classList.remove('typing');
+    }
+  }
+  typeChar();
+}
+
+// Add message to chat
+function addMessage(sender, message) {
+  const div = document.createElement('div');
+  div.className = 'message ' + sender;
+  div.textContent = message;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// Send query to API
+async function sendQuery() {
+  const queryInput = document.getElementById('queryInput');
+  const text = queryInput.value.trim();
+  if(!text) return;
+
+  addMessage('user', text);
+  queryInput.value = '';
+
+  // AI typing indicator
+  const typingIndicator = document.createElement('div');
+  typingIndicator.className = 'message ai typing';
+  typingIndicator.textContent = "Anuga AI is typing...";
+  chatBox.appendChild(typingIndicator);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  const apiUrl = "https://www.movanest.xyz/v2/powerbrainai?query=" + encodeURIComponent(text);
+
+  try {
+    const response = await fetch(apiUrl);
+    const result = await response.json();
+    typingIndicator.remove();
+
+    let reply = "No response received.";
+    if(result && result.results) reply = result.results;
+    addMessage('ai', reply);
+
+  } catch(err) {
+    typingIndicator.remove();
+    addMessage('ai', "Error connecting to Anuga AI API.");
+    console.error(err);
+  }
+}
+
+// Run auto welcome on page load
+window.onload = autoWelcome;
+</script>
+
+</body>
+</html>
