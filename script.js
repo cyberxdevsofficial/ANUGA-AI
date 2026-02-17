@@ -2,7 +2,7 @@ const chatBox = document.getElementById('chatBox');
 
 // Auto welcome typing
 function autoWelcome() {
-  const welcome = "WELCOME TO ANUGA AI";
+  const welcome = "Welcome to Anuga AI. How can I help you?";
   let i = 0;
   const msgDiv = document.createElement('div');
   msgDiv.className = 'message ai typing';
@@ -39,7 +39,6 @@ async function sendQuery() {
   addMessage('user', text);
   input.value = '';
 
-  // AI typing
   const typingIndicator = document.createElement('div');
   typingIndicator.className = 'message ai typing';
   typingIndicator.textContent = "Anuga AI is typing...";
@@ -50,11 +49,10 @@ async function sendQuery() {
     let reply;
     const lowerText = text.toLowerCase();
 
-    // Custom owner paragraph
+    // Custom owner response
     if (lowerText.includes("owner") || lowerText.includes("who is your owner") || lowerText.includes("your owner")) {
       reply = "My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills. He created me to assist with information and provide AI-powered guidance.";
     } else {
-      // API call
       const apiUrl = "https://www.movanest.xyz/v2/powerbrainai?query=" + encodeURIComponent(text);
       const response = await fetch(apiUrl);
       const result = await response.json();
@@ -70,5 +68,4 @@ async function sendQuery() {
   }
 }
 
-// Run auto welcome
 window.onload = autoWelcome;
