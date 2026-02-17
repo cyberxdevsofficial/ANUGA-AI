@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anuga AI Chat</title>
+<title>Anuga AI</title>
 
+<!-- Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&family=JetBrains+Mono&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="style.css">
@@ -14,13 +15,16 @@
 <div class="background"></div>
 
 <div class="chat-container">
+
   <div class="chat-header">Anuga AI</div>
+
   <div id="chatBox" class="chat-box"></div>
 
   <div class="input-container">
-    <input type="text" id="queryInput" placeholder="Ask or generate image..." />
+    <input id="queryInput" type="text" placeholder="Ask anything or generate image..." />
     <button onclick="sendQuery()">Send</button>
   </div>
+
 </div>
 
 <script src="script.js"></script>
