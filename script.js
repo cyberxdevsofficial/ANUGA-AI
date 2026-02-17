@@ -1,72 +1,70 @@
-const chatBox = document.getElementById('chatBox');
+const API_URL = "https://www.movanest.xyz/v2/powerbrainai?query=";
 
-function autoWelcome(){
-  typeMessage('ai',"WELCOME TO ANUGA AI",120);
-}
 
-function addMessage(sender,msg){
-  const div=document.createElement('div');
-  div.className='message '+sender;
-  div.textContent=msg;
-  chatBox.appendChild(div);
-  chatBox.scrollTop=chatBox.scrollHeight;
-}
+// ===== Welcome typing =====
+const welcomeText = "WELCOME TO ANUGA AI";
+let w=0;
 
-function typeMessage(sender,text,speed=40){
-  const div=document.createElement('div');
-  div.className='message '+sender+' typing';
-  chatBox.appendChild(div);
-
-  let i=0;
-  function type(){
-    if(i<text.length){
-      div.textContent+=text.charAt(i);
-      i++;
-      chatBox.scrollTop=chatBox.scrollHeight;
-      setTimeout(type,speed);
-    }else{
-      div.classList.remove('typing');
+function typeWelcome(){
+    if(w < welcomeText.length){
+        document.getElementById("welcome").innerHTML += welcomeText.charAt(w);
+        w++;
+        setTimeout(typeWelcome,60);
     }
-  }
-  type();
 }
+typeWelcome();
 
-async function sendQuery(){
-  const input=document.getElementById('queryInput');
-  const text=input.value.trim();
-  if(!text) return;
 
-  addMessage('user',text);
-  input.value='';
+// ===== Send Message =====
+async function sendMessage(){
 
-  const loader=document.createElement('div');
-  loader.className='message ai typing';
-  loader.textContent="Anuga AI is typing...";
-  chatBox.appendChild(loader);
+    const input=document.getElementById("userInput");
+    const text=input.value.trim();
+    if(!text) return;
 
-  try{
-    let reply;
-    const lower=text.toLowerCase();
+    addMessage(text,"user");
+    input.value="";
 
-    if(lower.includes("owner")){
-      reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills.";
-    }else{
-      const res = await fetch(
-        "https://dtz-ai-api-new.vercel.app/api/ai/gemini?prompt=" +
-        encodeURIComponent(text)
-      );
+    const botBubble = addMessage("","bot");
 
-      const data = await res.json();
-      reply = data.data || "No response received.";
+    try{
+        const res = await fetch(API_URL + encodeURIComponent(text));
+        const data = await res.json();
+
+        const reply = data.results || "No response";
+
+        typeResponse(botBubble, reply);
+
+    }catch(err){
+        typeResponse(botBubble,"Connection error");
     }
-
-    loader.remove();
-    typeMessage('ai',reply,28);
-
-  }catch(e){
-    loader.remove();
-    typeMessage('ai',"Error connecting to Gemini API.",28);
-  }
 }
 
-window.onload=autoWelcome;
+
+// ===== Add Message =====
+function addMessage(text,type){
+    const div=document.createElement("div");
+    div.className="msg "+type;
+    div.innerText=text;
+
+    document.getElementById("chatBox").appendChild(div);
+    document.getElementById("chatBox").scrollTop=999999;
+
+    return div;
+}
+
+
+// ===== Typing Effect =====
+function typeResponse(el,text){
+    let i=0;
+    el.innerText="";
+
+    function type(){
+        if(i<text.length){
+            el.innerText += text.charAt(i);
+            i++;
+            setTimeout(type,15);
+        }
+    }
+    type();
+}
