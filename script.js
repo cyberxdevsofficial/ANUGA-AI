@@ -1,6 +1,6 @@
 const chatBox = document.getElementById('chatBox');
 
-// Auto-type welcome message on load
+// Auto welcome typing
 function autoWelcome() {
   const welcome = "WELCOME TO ANUGA AI";
   let i = 0;
@@ -13,7 +13,7 @@ function autoWelcome() {
       msgDiv.textContent += welcome.charAt(i);
       i++;
       chatBox.scrollTop = chatBox.scrollHeight;
-      setTimeout(typeChar, 100);
+      setTimeout(typeChar, 120);
     } else {
       msgDiv.classList.remove('typing');
     }
@@ -21,7 +21,7 @@ function autoWelcome() {
   typeChar();
 }
 
-// Add message to chat
+// Add message
 function addMessage(sender, message) {
   const div = document.createElement('div');
   div.className = 'message ' + sender;
@@ -30,16 +30,16 @@ function addMessage(sender, message) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Send query to API
+// Send query
 async function sendQuery() {
-  const queryInput = document.getElementById('queryInput');
-  const text = queryInput.value.trim();
+  const input = document.getElementById('queryInput');
+  const text = input.value.trim();
   if(!text) return;
 
   addMessage('user', text);
-  queryInput.value = '';
+  input.value = '';
 
-  // AI typing indicator
+  // AI typing
   const typingIndicator = document.createElement('div');
   typingIndicator.className = 'message ai typing';
   typingIndicator.textContent = "Anuga AI is typing...";
@@ -50,31 +50,25 @@ async function sendQuery() {
     let reply;
     const lowerText = text.toLowerCase();
 
-    // Custom owner response as paragraph
-    if (
-      lowerText.includes("owner") ||
-      lowerText.includes("who is your owner") ||
-      lowerText.includes("your owner")
-    ) {
+    // Custom owner paragraph
+    if (lowerText.includes("owner") || lowerText.includes("who is your owner") || lowerText.includes("your owner")) {
       reply = "My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills. He created me to assist with information and provide AI-powered guidance.";
     } else {
-      // Call API for other questions
+      // API call
       const apiUrl = "https://www.movanest.xyz/v2/powerbrainai?query=" + encodeURIComponent(text);
       const response = await fetch(apiUrl);
       const result = await response.json();
-      reply = "No response received.";
-      if(result && result.results) reply = result.results;
+      reply = (result && result.results) ? result.results : "No response received.";
     }
 
     typingIndicator.remove();
     addMessage('ai', reply);
-
-  } catch(err) {
+  } catch (err) {
     typingIndicator.remove();
     addMessage('ai', "Error connecting to Anuga AI API.");
     console.error(err);
   }
 }
 
-// Run auto welcome on page load
+// Run auto welcome
 window.onload = autoWelcome;
