@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anuga AI Chat</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+
+<!-- Tailwind CDN for easy styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #6C63FF, #5DE7A4);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .chat-container {
+    background: #ffffffdd;
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+
+  .chat-box {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  .message {
+    margin: 8px 0;
+    padding: 10px 15px;
+    border-radius: 20px;
+    max-width: 80%;
+    word-wrap: break-word;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: slideIn 0.3s forwards;
+  }
+
+  .user { 
+    background-color: #6C63FF;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 0;
+  }
+
+  .ai { 
+    background-color: #5DE7A4;
+    color: white;
+    align-self: flex-start;
+    border-bottom-left-radius: 0;
+  }
+
+  @keyframes slideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .input-container {
+    display: flex;
+    padding: 10px;
+    background: rgba(255,255,255,0.9);
+    border-top: 1px solid #ddd;
+  }
+
+  .input-container input {
+    flex: 1;
+    padding: 10px 15px;
+    border-radius: 50px;
+    border: 1px solid #ccc;
+    font-family: 'JetBrains Mono', monospace;
+    outline: none;
+    transition: all 0.2s;
+  }
+
+  .input-container input:focus {
+    border-color: #6C63FF;
+    box-shadow: 0 0 5px #6C63FF66;
+  }
+
+  .input-container button {
+    margin-left: 10px;
+    background-color: #6C63FF;
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .input-container button:hover {
+    background-color: #5a50e0;
+  }
+
+  /* Scrollbar Styling */
+  .chat-box::-webkit-scrollbar {
+    width: 6px;
+  }
+  .chat-box::-webkit-scrollbar-thumb {
+    background: #6C63FF66;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div id="chatBox" class="chat-box"></div>
+  <div class="input-container">
+    <input type="text" id="queryInput" placeholder="Ask Anuga AI..." />
+    <button onclick="sendQuery()">Send</button>
+  </div>
+</div>
+
+<script>
+async function sendQuery() {
+  const queryInput = document.getElementById('queryInput');
+  const text = queryInput.value.trim();
+  if (!text) return;
+
+  addMessage('user', text);
+  queryInput.value = '';
+
+  const chatBox = document.getElementById('chatBox');
+  
+  // AI is typing indicator
+  const typingIndicator = document.createElement('div');
+  typingIndicator.className = 'message ai';
+  typingIndicator.textContent = "Anuga AI is typing...";
+  chatBox.appendChild(typingIndicator);
+  chatBox.scrollTop = chatBox.scrollHeight;
+
+  const apiUrl = "https://www.movanest.xyz/v2/powerbrainai?query=" 
+                 + encodeURIComponent(text);
+
+  try {
+    const response = await fetch(apiUrl);
+    const result = await response.json();
+
+    // Remove typing indicator
+    typingIndicator.remove();
+
+    const reply = result.answer || result.data || "No response received";
+    addMessage('ai', reply);
+
+  } catch (err) {
+    console.error(err);
+    typingIndicator.remove();
+    addMessage('ai', "Error connecting to Anuga AI API");
+  }
+}
+
+function addMessage(sender, message) {
+  const chatBox = document.getElementById('chatBox');
+  const div = document.createElement('div');
+  div.className = 'message ' + sender;
+  div.textContent = message;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+</script>
+
+</body>
+</html>
