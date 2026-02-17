@@ -1,70 +1,68 @@
-const API_URL = "https://www.movanest.xyz/v2/powerbrainai?query=";
+const chatBox = document.getElementById('chatBox');
 
+function autoWelcome(){
+  typeMessage('ai',"WELCOME TO ANUGA AI",120);
+}
 
-// ===== Welcome typing =====
-const welcomeText = "WELCOME TO ANUGA AI";
-let w=0;
+function addMessage(sender,msg){
+  const div=document.createElement('div');
+  div.className='message '+sender;
+  div.textContent=msg;
+  chatBox.appendChild(div);
+  chatBox.scrollTop=chatBox.scrollHeight;
+}
 
-function typeWelcome(){
-    if(w < welcomeText.length){
-        document.getElementById("welcome").innerHTML += welcomeText.charAt(w);
-        w++;
-        setTimeout(typeWelcome,60);
+function typeMessage(sender,text,speed=40){
+  const div=document.createElement('div');
+  div.className='message '+sender+' typing';
+  chatBox.appendChild(div);
+
+  let i=0;
+  function type(){
+    if(i<text.length){
+      div.textContent+=text.charAt(i);
+      i++;
+      chatBox.scrollTop=chatBox.scrollHeight;
+      setTimeout(type,speed);
+    }else{
+      div.classList.remove('typing');
     }
+  }
+  type();
 }
-typeWelcome();
 
+async function sendQuery(){
+  const input=document.getElementById('queryInput');
+  const text=input.value.trim();
+  if(!text) return;
 
-// ===== Send Message =====
-async function sendMessage(){
+  addMessage('user',text);
+  input.value='';
 
-    const input=document.getElementById("userInput");
-    const text=input.value.trim();
-    if(!text) return;
+  const loader=document.createElement('div');
+  loader.className='message ai typing';
+  loader.textContent="Anuga AI is typing...";
+  chatBox.appendChild(loader);
 
-    addMessage(text,"user");
-    input.value="";
+  try{
+    let reply;
+    const lower=text.toLowerCase();
 
-    const botBubble = addMessage("","bot");
-
-    try{
-        const res = await fetch(API_URL + encodeURIComponent(text));
-        const data = await res.json();
-
-        const reply = data.results || "No response";
-
-        typeResponse(botBubble, reply);
-
-    }catch(err){
-        typeResponse(botBubble,"Connection error");
+    if(lower.includes("owner")){
+      reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has extensive technical knowledge and qualifications, including development, hacking, and other advanced technical skills.";
+    }else{
+      const res=await fetch("https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(text));
+      const data=await res.json();
+      reply=data.results || "No response received.";
     }
+
+    loader.remove();
+    typeMessage('ai',reply,28);
+
+  }catch{
+    loader.remove();
+    typeMessage('ai',"Connection error.",28);
+  }
 }
 
-
-// ===== Add Message =====
-function addMessage(text,type){
-    const div=document.createElement("div");
-    div.className="msg "+type;
-    div.innerText=text;
-
-    document.getElementById("chatBox").appendChild(div);
-    document.getElementById("chatBox").scrollTop=999999;
-
-    return div;
-}
-
-
-// ===== Typing Effect =====
-function typeResponse(el,text){
-    let i=0;
-    el.innerText="";
-
-    function type(){
-        if(i<text.length){
-            el.innerText += text.charAt(i);
-            i++;
-            setTimeout(type,15);
-        }
-    }
-    type();
-}
+window.onload=autoWelcome;
