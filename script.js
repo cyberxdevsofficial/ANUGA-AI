@@ -1,18 +1,21 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const welcome = document.getElementById("welcome");
+const sendBtn = document.getElementById("sendBtn");
 
 /* Welcome typing */
-const text="Welcome to Anuga AI";
+const welcomeText="Welcome to Anuga AI";
 let i=0;
 function typeWelcome(){
-    if(i<text.length){
-        welcome.innerHTML+=text.charAt(i);
+    if(i<welcomeText.length){
+        welcome.innerHTML+=welcomeText.charAt(i);
         i++;
         setTimeout(typeWelcome,70);
+    } else {
+        setTimeout(()=>welcome.style.display="none",1000);
     }
 }
-typeWelcome();
+window.onload=typeWelcome;
 
 /* Detect image prompts */
 function isImagePrompt(t){
@@ -51,7 +54,7 @@ function addMessage(text,cls){
     chat.scrollTop=chat.scrollHeight;
 }
 
-/* Send */
+/* Send Function */
 async function send(){
     const q=input.value;
     if(!q) return;
@@ -88,6 +91,8 @@ async function send(){
     addMessage(data.results,"ai");
 }
 
+/* Button click & Enter key */
+sendBtn.addEventListener("click",send);
 input.addEventListener("keypress",e=>{
     if(e.key==="Enter") send();
 });
