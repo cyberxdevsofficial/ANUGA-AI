@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,22 +11,27 @@
 
 <body>
 
-<div class="welcome" id="welcomeText"></div>
+<div class="app">
 
-<div class="container">
+<!-- Sidebar -->
+<div class="sidebar">
+<button id="newChat">+ New Chat</button>
+<div id="history"></div>
+</div>
 
-<header>
-<h1>Anuga AI</h1>
-<button id="clearBtn">Clear Chat</button>
-</header>
+<!-- Main -->
+<div class="main">
+
+<div class="welcome" id="welcome"></div>
 
 <div id="chat"></div>
 
-<div class="inputArea">
+<div class="inputBox">
 <input id="input" placeholder="Message Anuga AI..." />
 <button id="send">Send</button>
 </div>
 
+</div>
 </div>
 
 <script src="script.js"></script>
