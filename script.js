@@ -1,33 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anuga AI</title>
+const chat=document.getElementById("chat");
+const input=document.getElementById("input");
+const sendBtn=document.getElementById("sendBtn");
+const welcome=document.getElementById("welcome");
 
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;900&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
-</head>
+/* Welcome typing */
+const welcomeText="Welcome to Anuga AI";
+let i=0;
+function typeWelcome(){
+    if(i<welcomeText.length){
+        welcome.innerHTML+=welcomeText.charAt(i);
+        i++;
+        setTimeout(typeWelcome,70);
+    } else {
+        setTimeout(()=>welcome.style.display="none",800);
+    }
+}
+window.onload=typeWelcome;
 
-<body>
+function scrollToBottom(){
+    chat.scrollTop = chat.scrollHeight;
+}
 
-<div id="welcome" class="welcome"></div>
+function addMessage(text,cls){
+    const div=document.createElement("div");
+    div.className="msg "+cls;
+    div.textContent=text;
+    chat.appendChild(div);
+    scrollToBottom();
+}
 
-<div class="app-container">
-    <div id="chat" class="chat"></div>
+async function send(){
+    const q = input.value.trim();
+    if(!q) return;
+    addMessage(q,"user");
+    input.value="";
 
-    <div class="input-area">
-        <input id="input" placeholder="Message Anuga AI..." />
-        <button id="sendBtn">
-            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/filled-sent.png"/>
-        </button>
-    </div>
-</div>
+    let reply;
 
-<footer class="footer">
-    POWERED BY <span class="brand">ANUGA SENITHU IN DARK TECH ZONE TM</span>
-</footer>
+    const isImage = /image|logo|photo|design|draw|art/i.test(q);
 
-<script src="script.js"></script>
-</body>
-</html>
+    if(isImage){
+        addMessage("Generating image…","ai");
+        const url="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(q);
+        const res = await fetch(url);
+        const data = await res.json();
+        const img=document.createElement("img");
+        img.src=data.url||data.image;
+        img.style.maxWidth="280px";
+        const d=document.createElement("div");
+        d.className="msg ai";
+        d.appendChild(img);
+        chat.appendChild(d);
+        scrollToBottom();
+        return;
+    }
+
+    const res = await fetch("https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(q));
+    const data = await res.json();
+    reply=data.results||"No response.";
+
+    addMessage(reply,"ai");
+}
+
+sendBtn.addEventListener("click",send);
+input.addEventListener("keypress",e=>{
+    if(e.key==="Enter") send();
+});
