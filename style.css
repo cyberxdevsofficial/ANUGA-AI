@@ -1,143 +1,119 @@
 body{
     margin:0;
-    font-family:'Inter',sans-serif;
     height:100vh;
+    font-family:'Inter',sans-serif;
+    background: radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
     display:flex;
     justify-content:center;
     align-items:center;
-    background:#111;
-    overflow:hidden;
 }
 
-/* Animated luxury gradient */
-.background{
+/* Welcome */
+.welcome{
     position:fixed;
-    width:100%;
-    height:100%;
-    background:linear-gradient(45deg,#0f2027,#203a43,#2c5364);
-    background-size:600% 600%;
-    animation:bg 18s ease infinite;
+    top:40%;
+    font-size:42px;
+    color:white;
+    font-family:'Playfair Display',serif;
+    animation: fadeOut 4s forwards;
 }
 
-@keyframes bg{
-    0%{background-position:0% 50%}
-    50%{background-position:100% 50%}
-    100%{background-position:0% 50%}
+@keyframes fadeOut{
+    0%{opacity:1}
+    80%{opacity:1}
+    100%{opacity:0}
 }
 
-/* Chat Container */
+/* Chat */
 .chat-container{
-    position:relative;
-    z-index:2;
     width:95%;
-    max-width:720px;
-    height:90vh;
-    background:rgba(255,255,255,.05);
-    backdrop-filter:blur(18px);
-    border-radius:24px;
+    max-width:900px;
+    height:88vh;
+    backdrop-filter:blur(16px);
+    background:rgba(255,255,255,0.06);
+    border-radius:18px;
+    box-shadow:0 0 40px rgba(0,0,0,.4);
     display:flex;
     flex-direction:column;
-    overflow:hidden;
-    box-shadow:0 20px 60px rgba(0,0,0,.5);
 }
 
-.chat-header{
+#chat{
+    flex:1;
+    overflow:auto;
     padding:20px;
-    font-family:'Montserrat',sans-serif;
-    font-size:1.5rem;
-    color:#fff;
-    text-align:center;
-    background:rgba(255,255,255,.06);
 }
 
 /* Messages */
-.chat-box{
-    flex:1;
-    padding:20px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
+.msg{
+    margin:12px 0;
+    padding:14px 18px;
+    border-radius:12px;
+    max-width:75%;
+    animation:slide .3s ease;
 }
 
-.message{
-    max-width:70%;
-    padding:16px 20px;
-    border-radius:20px;
-    animation:slide .35s forwards;
-    transform:translateY(20px);
-    opacity:0;
-    line-height:1.6;
-}
-
-@keyframes slide{
-    to{opacity:1;transform:translateY(0)}
-}
-
-/* User Bubble */
 .user{
-    align-self:flex-end;
-    font-family:'JetBrains Mono',monospace;
-    background:linear-gradient(135deg,#8e2de2,#4a00e0);
-    color:#fff;
-    border-bottom-right-radius:0;
+    background:#00c6ff;
+    color:black;
+    margin-left:auto;
 }
 
-/* AI Bubble (Specimen-style font) */
 .ai{
-    align-self:flex-start;
-    font-family:'Spectral',serif;
-    background:linear-gradient(135deg,#00c6ff,#0072ff);
-    color:#fff;
-    border-bottom-left-radius:0;
-}
-
-.typing{
-    font-style:italic;
-}
-
-/* Generated Image */
-.ai-image{
-    max-width:260px;
-    border-radius:14px;
-    margin-top:8px;
-    box-shadow:0 8px 18px rgba(0,0,0,.35);
+    background:rgba(255,255,255,.1);
+    color:white;
+    font-family:'Cormorant Garamond',serif;
 }
 
 /* Input */
-.input-container{
+.input-area{
     display:flex;
-    padding:16px;
-    background:rgba(255,255,255,.05);
+    border-top:1px solid rgba(255,255,255,.1);
 }
 
-.input-container input{
+input{
     flex:1;
-    padding:14px 20px;
-    border-radius:30px;
+    padding:16px;
     border:none;
-    background:rgba(255,255,255,.15);
-    color:#fff;
-    font-family:'JetBrains Mono',monospace;
-    outline:none;
+    background:transparent;
+    color:white;
+    font-size:16px;
 }
 
-.input-container button{
-    margin-left:10px;
-    padding:0 24px;
+button{
+    background:#00c6ff;
     border:none;
-    border-radius:30px;
-    font-weight:600;
-    color:#fff;
-    background:linear-gradient(135deg,#8e2de2,#4a00e0);
+    padding:0 22px;
+    font-size:16px;
     cursor:pointer;
+}
+
+/* Footer */
+.footer{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    text-align:center;
+    padding:10px 0;
+    font-size:12px;
+    letter-spacing:2px;
+    color:rgba(255,255,255,0.6);
+    background:rgba(0,0,0,0.35);
+    backdrop-filter:blur(8px);
+}
+
+.brand{
+    font-family:'Playfair Display',serif;
+    font-weight:900;
+    color:#ffffff;
+    font-size:13px;
+}
+
+@keyframes slide{
+    from{transform:translateY(10px);opacity:0}
+    to{transform:translateY(0);opacity:1}
 }
 
 /* Responsive */
 @media(max-width:768px){
-    .message{max-width:85%}
-}
-@media(max-width:480px){
-    .message{max-width:95%}
-    .chat-header{font-size:1.2rem}
+    .msg{max-width:90%}
 }
