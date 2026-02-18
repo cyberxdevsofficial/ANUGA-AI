@@ -1,99 +1,96 @@
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const send = document.getElementById("send");
-const clearBtn = document.getElementById("clearBtn");
+const chatBox=document.getElementById('chatBox');
 
-const API_TEXT = "https://www.movanest.xyz/v2/powerbrainai?query=";
-const API_IMG = "https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=";
-
-/* ---------- Welcome typing ---------- */
-const welcome = document.getElementById("welcomeText");
-const welcomeMsg = "WELCOME TO ANUGA AI";
-
-let wi=0;
-function typeWelcome(){
-if(wi < welcomeMsg.length){
-welcome.innerHTML += welcomeMsg.charAt(wi);
-wi++;
-setTimeout(typeWelcome,70);
-}
-}
-typeWelcome();
-
-/* ---------- Message bubble ---------- */
-function addMsg(text, cls){
-let div = document.createElement("div");
-div.className = "msg " + cls;
-div.innerHTML = text;
-chat.appendChild(div);
-chat.scrollTop = chat.scrollHeight;
-saveChat();
+function autoWelcome(){
+typeMessage('ai',"WELCOME TO ANUGA AI",120);
 }
 
-/* ---------- Typing animation ---------- */
-function typeBot(text){
-let div=document.createElement("div");
-div.className="msg bot";
-chat.appendChild(div);
+function addMessage(sender,msg){
+const div=document.createElement('div');
+div.className='message '+sender;
+div.textContent=msg;
+chatBox.appendChild(div);
+chatBox.scrollTop=chatBox.scrollHeight;
+}
+
+function typeMessage(sender,text,speed=35){
+const div=document.createElement('div');
+div.className='message '+sender+' typing';
+chatBox.appendChild(div);
 
 let i=0;
 function type(){
 if(i<text.length){
-div.innerHTML += text.charAt(i);
+div.textContent+=text.charAt(i);
 i++;
-chat.scrollTop = chat.scrollHeight;
-setTimeout(type,12);
+chatBox.scrollTop=chatBox.scrollHeight;
+setTimeout(type,speed);
 }else{
-saveChat();
+div.classList.remove('typing');
 }
 }
 type();
 }
 
-/* ---------- Save & Load Chat ---------- */
-function saveChat(){
-localStorage.setItem("anuga_chat", chat.innerHTML);
+function showImage(url){
+const div=document.createElement('div');
+div.className='message ai';
+
+const img=document.createElement('img');
+img.src=url;
+img.className='ai-image';
+
+div.appendChild(img);
+chatBox.appendChild(div);
+chatBox.scrollTop=chatBox.scrollHeight;
 }
 
-function loadChat(){
-let saved = localStorage.getItem("anuga_chat");
-if(saved) chat.innerHTML = saved;
-}
-loadChat();
-
-/* ---------- Clear Chat ---------- */
-clearBtn.onclick=()=>{
-localStorage.removeItem("anuga_chat");
-chat.innerHTML="";
+function isImageRequest(text){
+const words=["draw","image","generate image","create image","photo","picture","art"];
+return words.some(w=>text.toLowerCase().includes(w));
 }
 
-/* ---------- Send Message ---------- */
-send.onclick = async ()=>{
-let q=input.value.trim();
-if(!q) return;
+async function sendQuery(){
+const input=document.getElementById('queryInput');
+const text=input.value.trim();
+if(!text) return;
 
-addMsg(q,"user");
-input.value="";
+addMessage('user',text);
+input.value='';
 
-/* Image generation trigger */
-if(q.toLowerCase().startsWith("draw") || q.toLowerCase().startsWith("image")){
-let prompt=q.replace("draw","").replace("image","");
-typeBot("Generating image...");
+const loader=document.createElement('div');
+loader.className='message ai typing';
+loader.textContent="Anuga AI is typing...";
+chatBox.appendChild(loader);
 
-let res=await fetch(API_IMG+encodeURIComponent(prompt));
-let data=await res.json();
+try{
 
-addMsg(`<img src="${data.url}" style="max-width:100%;border-radius:12px">`,"bot");
+// IMAGE
+if(isImageRequest(text)){
+loader.textContent="Generating image...";
+const url="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(text);
+loader.remove();
+typeMessage('ai',"Here is your image:",25);
+showImage(url);
 return;
 }
 
-/* Text AI */
-let res=await fetch(API_TEXT+encodeURIComponent(q));
-let data=await res.json();
-typeBot(data.results);
+// OWNER
+let reply;
+if(text.toLowerCase().includes("owner")){
+reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has strong technical expertise including development, hacking, and advanced computing.";
+}else{
+const res=await fetch("https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(text));
+const data=await res.json();
+reply=data.results || "No response received.";
 }
 
-/* Enter key send */
-input.addEventListener("keypress",e=>{
-if(e.key==="Enter") send.click();
-});
+loader.remove();
+typeMessage('ai',reply,28);
+
+}catch{
+loader.remove();
+typeMessage('ai',"Connection error.",28);
+}
+}
+
+window.onload=autoWelcome;
