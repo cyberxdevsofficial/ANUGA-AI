@@ -1,98 +1,33 @@
-const chat = document.getElementById("chat");
-const input = document.getElementById("input");
-const welcome = document.getElementById("welcome");
-const sendBtn = document.getElementById("sendBtn");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anuga AI</title>
 
-/* Welcome typing */
-const welcomeText="Welcome to Anuga AI";
-let i=0;
-function typeWelcome(){
-    if(i<welcomeText.length){
-        welcome.innerHTML+=welcomeText.charAt(i);
-        i++;
-        setTimeout(typeWelcome,70);
-    } else {
-        setTimeout(()=>welcome.style.display="none",1000);
-    }
-}
-window.onload=typeWelcome;
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;900&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
+</head>
 
-/* Detect image prompts */
-function isImagePrompt(t){
-    const words=[
-        "image","picture","photo","logo","design","draw","art",
-        "icon","banner","poster","wallpaper","generate",
-        "create image","make logo","illustration"
-    ];
-    t=t.toLowerCase();
-    return words.some(w=>t.includes(w));
-}
+<body>
 
-/* Typing animation */
-function typeMessage(el,text){
-    let i=0;
-    function type(){
-        if(i<text.length){
-            el.innerHTML+=text.charAt(i);
-            i++;
-            setTimeout(type,15);
-        }
-    }
-    type();
-}
+<div id="welcome" class="welcome"></div>
 
-function addMessage(text,cls){
-    const div=document.createElement("div");
-    div.className="msg "+cls;
-    chat.appendChild(div);
+<div class="app-container">
+    <div id="chat" class="chat"></div>
 
-    if(cls==="ai")
-        typeMessage(div,text);
-    else
-        div.innerHTML=text;
+    <div class="input-area">
+        <input id="input" placeholder="Message Anuga AI..." />
+        <button id="sendBtn">
+            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/filled-sent.png"/>
+        </button>
+    </div>
+</div>
 
-    chat.scrollTop=chat.scrollHeight;
-}
+<footer class="footer">
+    POWERED BY <span class="brand">ANUGA SENITHU IN DARK TECH ZONE TM</span>
+</footer>
 
-/* Send Function */
-async function send(){
-    const q=input.value;
-    if(!q) return;
-
-    addMessage(q,"user");
-    input.value="";
-
-    /* IMAGE ROUTE */
-    if(isImagePrompt(q)){
-        addMessage("🎨 Generating image...","ai");
-
-        const url="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(q);
-        const res=await fetch(url);
-        const data=await res.json();
-
-        const img=document.createElement("img");
-        img.src=data.url || data.image;
-        img.style.maxWidth="300px";
-
-        const div=document.createElement("div");
-        div.className="msg ai";
-        div.appendChild(img);
-        chat.appendChild(div);
-
-        chat.scrollTop=chat.scrollHeight;
-        return;
-    }
-
-    /* TEXT ROUTE */
-    const url="https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(q);
-    const res=await fetch(url);
-    const data=await res.json();
-
-    addMessage(data.results,"ai");
-}
-
-/* Button click & Enter key */
-sendBtn.addEventListener("click",send);
-input.addEventListener("keypress",e=>{
-    if(e.key==="Enter") send();
-});
+<script src="script.js"></script>
+</body>
+</html>
