@@ -15,25 +15,31 @@ body{
     font-size:42px;
     color:white;
     font-family:'Playfair Display',serif;
+    z-index:10;
 }
 
-/* Chat */
+/* Chat Container */
 .chat-container{
+    position:relative;
     width:95%;
     max-width:900px;
-    height:88vh;
+    height:calc(100vh - 60px); /* Full height minus footer */
+    display:flex;
+    flex-direction:column;
     backdrop-filter:blur(16px);
     background:rgba(255,255,255,0.06);
     border-radius:18px;
     box-shadow:0 0 40px rgba(0,0,0,.4);
-    display:flex;
-    flex-direction:column;
+    overflow:hidden;
 }
 
+/* Chat Messages */
 #chat{
     flex:1;
-    overflow:auto;
+    overflow-y:auto;
     padding:20px;
+    display:flex;
+    flex-direction:column;
 }
 
 /* Messages */
@@ -57,23 +63,26 @@ body{
     font-family:'Cormorant Garamond',serif;
 }
 
-/* Input */
+/* Input area */
 .input-area{
     display:flex;
     border-top:1px solid rgba(255,255,255,.1);
+    padding:10px;
+    background:rgba(0,0,0,0.15);
 }
 
 input{
     flex:1;
-    padding:16px;
+    padding:14px 16px;
     border:none;
-    background:transparent;
+    background:rgba(255,255,255,0.1);
     color:white;
     font-size:16px;
+    border-radius:8px;
 }
 
 #sendBtn{
-    background:#000000;
+    background:#000;
     border:none;
     cursor:pointer;
     padding:0 16px;
@@ -81,6 +90,7 @@ input{
     align-items:center;
     justify-content:center;
     border-radius:8px;
+    margin-left:8px;
     transition:0.3s;
 }
 
@@ -90,7 +100,7 @@ input{
 }
 
 #sendBtn:hover{
-    background:#222222;
+    background:#222;
 }
 
 /* Footer */
@@ -105,6 +115,7 @@ input{
     color:rgba(255,255,255,0.6);
     background:rgba(0,0,0,0.35);
     backdrop-filter:blur(8px);
+    z-index:5;
 }
 
 .brand{
@@ -122,4 +133,13 @@ input{
 /* Responsive */
 @media(max-width:768px){
     .msg{max-width:90%}
+    .input-area input{font-size:14px;}
+    #sendBtn img{width:20px;height:20px;}
+    .welcome{font-size:32px;}
+}
+
+@media(max-width:480px){
+    .msg{max-width:95%}
+    .input-area input{font-size:13px;}
+    .welcome{font-size:26px;}
 }
