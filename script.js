@@ -1,100 +1,99 @@
-const chatBox=document.getElementById("chatBox");
-const input=document.getElementById("userInput");
+const chatBox=document.getElementById('chatBox');
 
-/* Messaging */
-
-function addMsg(text,cls){
-let div=document.createElement("div");
-div.className="msg "+cls;
-chatBox.appendChild(div);
-
-if(cls==="ai"){
-typeText(div,text);
-}else{
-div.innerText=text;
-}
-chatBox.scrollTop=chatBox.scrollHeight;
+function autoWelcome(){
+    typeMessage('ai',"WELCOME TO ANUGA AI",120);
 }
 
-function typeText(el,text){
-let i=0;
-function t(){
-if(i<text.length){
-el.innerHTML+=text[i];
-i++;
-setTimeout(t,15);
-}}
-t();
+function addMessage(sender,msg){
+    const div=document.createElement('div');
+    div.className='message '+sender;
+    div.textContent=msg;
+    chatBox.appendChild(div);
+    chatBox.scrollTop=chatBox.scrollHeight;
 }
 
-async function sendMessage(){
-let text=input.value.trim();
-if(!text) return;
+function typeMessage(sender,text,speed=40){
+    const div=document.createElement('div');
+    div.className='message '+sender+' typing';
+    chatBox.appendChild(div);
 
-addMsg(text,"user");
-input.value="";
-
-/* Image Mode */
-if(text.toLowerCase().startsWith("image")){
-let prompt=text.replace("image","");
-let img=document.createElement("img");
-img.src=`https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(prompt)}`;
-img.style.width="240px";
-img.style.borderRadius="12px";
-
-let wrap=document.createElement("div");
-wrap.className="msg ai";
-wrap.appendChild(img);
-chatBox.appendChild(wrap);
-return;
+    let i=0;
+    function type(){
+        if(i<text.length){
+            div.textContent+=text.charAt(i);
+            i++;
+            chatBox.scrollTop=chatBox.scrollHeight;
+            setTimeout(type,speed);
+        }else{
+            div.classList.remove('typing');
+        }
+    }
+    type();
 }
 
-/* Text AI */
-let res=await fetch(`https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(text)}`);
-let data=await res.json();
-addMsg(data.results,"ai");
+function showImage(url){
+    const div=document.createElement('div');
+    div.className='message ai';
+
+    const img=document.createElement('img');
+    img.src=url;
+    img.className='ai-image';
+
+    div.appendChild(img);
+    chatBox.appendChild(div);
+    chatBox.scrollTop=chatBox.scrollHeight;
 }
 
-input.addEventListener("keypress",e=>{
-if(e.key==="Enter") sendMessage();
-});
-
-/* Animated Background Particles */
-
-const canvas=document.getElementById("bg");
-const ctx=canvas.getContext("2d");
-
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-let particles=[];
-
-for(let i=0;i<60;i++){
-particles.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-vx:(Math.random()-0.5)*0.5,
-vy:(Math.random()-0.5)*0.5,
-r:Math.random()*2
-});
+function isImageRequest(text){
+    const triggers=[
+        "draw","image","generate image","create image",
+        "make image","picture","photo","art"
+    ];
+    return triggers.some(t=>text.toLowerCase().includes(t));
 }
 
-function animate(){
-ctx.clearRect(0,0,canvas.width,canvas.height);
+async function sendQuery(){
+    const input=document.getElementById('queryInput');
+    const text=input.value.trim();
+    if(!text) return;
 
-particles.forEach(p=>{
-p.x+=p.vx;
-p.y+=p.vy;
+    addMessage('user',text);
+    input.value='';
 
-if(p.x<0||p.x>canvas.width)p.vx*=-1;
-if(p.y<0||p.y>canvas.height)p.vy*=-1;
+    const loader=document.createElement('div');
+    loader.className='message ai typing';
+    loader.textContent="Anuga AI is typing...";
+    chatBox.appendChild(loader);
 
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-ctx.fillStyle="rgba(255,255,255,0.3)";
-ctx.fill();
-});
+    try{
 
-requestAnimationFrame(animate);
+        // IMAGE MODE
+        if(isImageRequest(text)){
+            loader.textContent="Generating image...";
+            const imgURL="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(text);
+            loader.remove();
+            typeMessage('ai',"Here is your generated image:",28);
+            showImage(imgURL);
+            return;
+        }
+
+        // TEXT MODE
+        let reply;
+        if(text.toLowerCase().includes("owner")){
+            reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has strong technical expertise including development, hacking, and advanced computing skills.";
+        }else{
+            const res=await fetch("https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(text));
+            const data=await res.json();
+            reply=data.results || "No response received.";
+        }
+
+        loader.remove();
+        typeMessage('ai',reply,28);
+
+    }catch(e){
+        loader.remove();
+        typeMessage('ai',"Connection error.",28);
+    }
 }
-animate();
+
+window.onload=autoWelcome;
