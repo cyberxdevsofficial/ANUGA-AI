@@ -6,25 +6,29 @@
 <title>Anuga AI</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Spectral:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="welcome" id="welcome"></div>
+<!-- Animated Background -->
+<canvas id="bg"></canvas>
 
-<div class="chat-container">
+<div class="chat-wrapper">
 
-    <div class="chat-header">
-        ANUGA AI
-    </div>
+    <div class="chat-container">
 
-    <div class="chat-box" id="chatBox"></div>
+        <div class="chat-header">
+            ANUGA AI
+        </div>
 
-    <div class="input-area">
-        <input id="userInput" placeholder="Message Anuga AI..." />
-        <button onclick="sendMessage()">Send</button>
+        <div class="chat-box" id="chatBox"></div>
+
+        <div class="input-area">
+            <input id="userInput" placeholder="Message Anuga AI..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
     </div>
 
 </div>
