@@ -1,50 +1,61 @@
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
+*{margin:0;padding:0;box-sizing:border-box}
 
 body{
 height:100vh;
 font-family:Inter, sans-serif;
-background:linear-gradient(135deg,#0f172a,#020617);
+overflow:hidden;
+background:#020617;
+}
+
+/* Background canvas */
+#bg{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
+}
+
+/* Center wrapper */
+
+.chat-wrapper{
+height:100vh;
 display:flex;
 justify-content:center;
 align-items:center;
+padding:20px;
 }
 
-/* Chat Container */
+/* Main Chat */
 
 .chat-container{
-width:95%;
-max-width:900px;
-height:92vh;
 display:flex;
 flex-direction:column;
-background:rgba(20,20,25,0.75);
-backdrop-filter:blur(20px);
+width:100%;
+height:100%;
+background:rgba(15,15,20,0.75);
+backdrop-filter:blur(18px);
 border-radius:18px;
 overflow:hidden;
-box-shadow:0 0 30px rgba(0,0,0,0.6);
+box-shadow:0 0 40px rgba(0,0,0,0.7);
 }
 
 /* Header */
 
 .chat-header{
 padding:18px;
+text-align:center;
 font-size:22px;
 font-weight:600;
-text-align:center;
 color:white;
 background:rgba(255,255,255,0.05);
 }
 
-/* Chat Messages */
+/* Chat */
 
 .chat-box{
 flex:1;
 overflow-y:auto;
-padding:18px;
+padding:20px;
 display:flex;
 flex-direction:column;
 gap:12px;
@@ -77,9 +88,9 @@ font-family:Spectral, serif;
 
 .input-area{
 display:flex;
-padding:12px;
 gap:10px;
-background:rgba(255,255,255,0.05);
+padding:14px;
+background:rgba(255,255,255,0.04);
 }
 
 input{
@@ -93,27 +104,13 @@ font-size:16px;
 }
 
 button{
-padding:14px 20px;
+padding:14px 22px;
 border:none;
 border-radius:12px;
 background:#22c55e;
 color:white;
 font-weight:600;
 cursor:pointer;
-}
-
-/* Welcome Animation */
-
-.welcome{
-position:absolute;
-font-size:28px;
-color:white;
-opacity:.15;
-top:40%;
-animation:type 3s steps(30),fadeout 2s 3s forwards;
-white-space:nowrap;
-overflow:hidden;
-border-right:2px solid white;
 }
 
 /* Animations */
@@ -123,42 +120,41 @@ from{opacity:0;transform:translateY(8px)}
 to{opacity:1}
 }
 
-@keyframes type{
-from{width:0}
-to{width:100%}
-}
+/* 📱 MOBILE */
 
-@keyframes fadeout{
-to{opacity:0}
-}
-
-/* Mobile Fix */
-
-@media(max-width:600px){
-
+@media (max-width:600px){
+.chat-wrapper{padding:0}
 .chat-container{
-height:100vh;
 border-radius:0;
+height:100vh;
+}
+.msg{max-width:90%}
+input{font-size:15px}
 }
 
-.chat-header{
-font-size:18px;
-}
+/* 📲 TABLET */
 
-.msg{
-max-width:90%;
-}
-
-button{
-padding:12px 14px;
-}
-
-}
-
-/* Tablet */
-
-@media(min-width:601px) and (max-width:1024px){
+@media (min-width:601px) and (max-width:1024px){
 .chat-container{
-max-width:700px;
+max-width:720px;
+height:92vh;
+}
+}
+
+/* 💻 PC */
+
+@media (min-width:1025px) and (max-width:1600px){
+.chat-container{
+max-width:900px;
+height:85vh;
+}
+}
+
+/* 🖥️ WIDE WEB */
+
+@media (min-width:1601px){
+.chat-container{
+max-width:1100px;
+height:80vh;
 }
 }
