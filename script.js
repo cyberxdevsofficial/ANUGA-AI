@@ -1,103 +1,99 @@
-const chat=document.getElementById("chat");
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const send = document.getElementById("send");
+const clearBtn = document.getElementById("clearBtn");
 
-function add(text,type){
-const div=document.createElement("div");
-div.className="msg "+type;
-div.textContent=text;
+const API_TEXT = "https://www.movanest.xyz/v2/powerbrainai?query=";
+const API_IMG = "https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=";
+
+/* ---------- Welcome typing ---------- */
+const welcome = document.getElementById("welcomeText");
+const welcomeMsg = "WELCOME TO ANUGA AI";
+
+let wi=0;
+function typeWelcome(){
+if(wi < welcomeMsg.length){
+welcome.innerHTML += welcomeMsg.charAt(wi);
+wi++;
+setTimeout(typeWelcome,70);
+}
+}
+typeWelcome();
+
+/* ---------- Message bubble ---------- */
+function addMsg(text, cls){
+let div = document.createElement("div");
+div.className = "msg " + cls;
+div.innerHTML = text;
 chat.appendChild(div);
-chat.scrollTop=chat.scrollHeight;
+chat.scrollTop = chat.scrollHeight;
+saveChat();
 }
 
-function typeEffect(text){
-const div=document.createElement("div");
+/* ---------- Typing animation ---------- */
+function typeBot(text){
+let div=document.createElement("div");
 div.className="msg bot";
 chat.appendChild(div);
 
 let i=0;
-const t=setInterval(()=>{
-div.textContent+=text[i];
+function type(){
+if(i<text.length){
+div.innerHTML += text.charAt(i);
 i++;
-if(i>=text.length) clearInterval(t);
-},20);
+chat.scrollTop = chat.scrollHeight;
+setTimeout(type,12);
+}else{
+saveChat();
+}
+}
+type();
 }
 
-async function send(){
-const input=document.getElementById("msg");
-const q=input.value;
+/* ---------- Save & Load Chat ---------- */
+function saveChat(){
+localStorage.setItem("anuga_chat", chat.innerHTML);
+}
+
+function loadChat(){
+let saved = localStorage.getItem("anuga_chat");
+if(saved) chat.innerHTML = saved;
+}
+loadChat();
+
+/* ---------- Clear Chat ---------- */
+clearBtn.onclick=()=>{
+localStorage.removeItem("anuga_chat");
+chat.innerHTML="";
+}
+
+/* ---------- Send Message ---------- */
+send.onclick = async ()=>{
+let q=input.value.trim();
 if(!q) return;
 
-add(q,"user");
+addMsg(q,"user");
 input.value="";
 
-let response;
+/* Image generation trigger */
+if(q.toLowerCase().startsWith("draw") || q.toLowerCase().startsWith("image")){
+let prompt=q.replace("draw","").replace("image","");
+typeBot("Generating image...");
 
-if(q.startsWith("/img")){
-let prompt=q.replace("/img","");
+let res=await fetch(API_IMG+encodeURIComponent(prompt));
+let data=await res.json();
 
-response=await fetch(
-`https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(prompt)}`
-);
-
-const data=await response.json();
-typeEffect(data.url || "Image generated");
-
-}else{
-
-response=await fetch(
-`https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(q)}`
-);
-
-const data=await response.json();
-typeEffect(data.results);
-saveChat(q,data.results);
-}
+addMsg(`<img src="${data.url}" style="max-width:100%;border-radius:12px">`,"bot");
+return;
 }
 
-/* AUTH */
-
-function signup(){
-fbFns.createUserWithEmailAndPassword(firebaseAuth,
-email.value,password.value);
+/* Text AI */
+let res=await fetch(API_TEXT+encodeURIComponent(q));
+let data=await res.json();
+typeBot(data.results);
 }
 
-function login(){
-fbFns.signInWithEmailAndPassword(firebaseAuth,
-email.value,password.value);
-}
-
-function logout(){
-fbFns.signOut(firebaseAuth);
-}
-
-/* SAVE CHAT */
-
-async function saveChat(q,r){
-await fbFns.addDoc(
-fbFns.collection(firebaseDB,"chats"),
-{uid:firebaseAuth.currentUser.uid,q,r}
-);
-}
-
-/* LOAD CHAT */
-
-fbFns.onAuthStateChanged(firebaseAuth, async user=>{
-if(user){
-authBox.classList.add("hidden");
-chatUI.classList.remove("hidden");
-
-const q=fbFns.query(
-fbFns.collection(firebaseDB,"chats"),
-fbFns.where("uid","==",user.uid)
-);
-
-const snap=await fbFns.getDocs(q);
-snap.forEach(d=>{
-add(d.data().q,"user");
-add(d.data().r,"bot");
-});
-
-}else{
-authBox.classList.remove("hidden");
-chatUI.classList.add("hidden");
-}
+/* Enter key send */
+input.addEventListener("keypress",e=>{
+if(e.key==="Enter") send.click();
 });
