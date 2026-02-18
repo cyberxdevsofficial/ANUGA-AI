@@ -15,13 +15,6 @@ body{
     font-size:42px;
     color:white;
     font-family:'Playfair Display',serif;
-    animation: fadeOut 4s forwards;
-}
-
-@keyframes fadeOut{
-    0%{opacity:1}
-    80%{opacity:1}
-    100%{opacity:0}
 }
 
 /* Chat */
@@ -79,19 +72,25 @@ input{
     font-size:16px;
 }
 
-button{
-    background:#000000; /* Black button */
-    color:#ffffff;       /* White text */
+#sendBtn{
+    background:#000000;
     border:none;
-    padding:0 22px;
-    font-size:16px;
     cursor:pointer;
+    padding:0 16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
     border-radius:8px;
     transition:0.3s;
 }
 
-button:hover{
-    background:#222222; /* Slight hover effect */
+#sendBtn img{
+    width:24px;
+    height:24px;
+}
+
+#sendBtn:hover{
+    background:#222222;
 }
 
 /* Footer */
