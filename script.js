@@ -1,99 +1,116 @@
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
-const send = document.getElementById("send");
-const clearBtn = document.getElementById("clearBtn");
+const historyDiv = document.getElementById("history");
 
-const API_TEXT = "https://www.movanest.xyz/v2/powerbrainai?query=";
-const API_IMG = "https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=";
+const API_TEXT="https://www.movanest.xyz/v2/powerbrainai?query=";
 
-/* ---------- Welcome typing ---------- */
-const welcome = document.getElementById("welcomeText");
-const welcomeMsg = "WELCOME TO ANUGA AI";
+let chats = JSON.parse(localStorage.getItem("anuga_threads")) || {};
+let current = null;
 
-let wi=0;
-function typeWelcome(){
-if(wi < welcomeMsg.length){
-welcome.innerHTML += welcomeMsg.charAt(wi);
-wi++;
-setTimeout(typeWelcome,70);
+/* ---------- Welcome Typing ---------- */
+const welcome=document.getElementById("welcome");
+let text="WELCOME TO ANUGA AI";
+let i=0;
+(function type(){
+if(i<text.length){
+welcome.innerHTML+=text[i++];
+setTimeout(type,60);
+}
+})();
+
+/* ---------- Sidebar ---------- */
+function renderHistory(){
+historyDiv.innerHTML="";
+for(let id in chats){
+let div=document.createElement("div");
+div.className="chatItem";
+div.innerText=chats[id].title;
+div.onclick=()=>loadChat(id);
+historyDiv.appendChild(div);
 }
 }
-typeWelcome();
+renderHistory();
 
-/* ---------- Message bubble ---------- */
-function addMsg(text, cls){
-let div = document.createElement("div");
-div.className = "msg " + cls;
-div.innerHTML = text;
+/* ---------- New Chat ---------- */
+document.getElementById("newChat").onclick=()=>{
+let id="chat_"+Date.now();
+chats[id]={title:"New Conversation",messages:[]};
+current=id;
+save();
+renderHistory();
+chat.innerHTML="";
+};
+
+/* ---------- Load Chat ---------- */
+function loadChat(id){
+current=id;
+chat.innerHTML="";
+chats[id].messages.forEach(m=>{
+addBubble(m.text,m.role,false);
+});
+}
+
+/* ---------- Save ---------- */
+function save(){
+localStorage.setItem("anuga_threads",JSON.stringify(chats));
+}
+
+/* ---------- Bubble ---------- */
+function addBubble(text,role,store=true){
+let div=document.createElement("div");
+div.className="msg "+role;
+div.innerHTML=text;
 chat.appendChild(div);
-chat.scrollTop = chat.scrollHeight;
-saveChat();
+chat.scrollTop=chat.scrollHeight;
+
+if(store){
+chats[current].messages.push({text,role});
+save();
+}
 }
 
-/* ---------- Typing animation ---------- */
+/* ---------- Typing Bot ---------- */
 function typeBot(text){
 let div=document.createElement("div");
 div.className="msg bot";
 chat.appendChild(div);
 
 let i=0;
-function type(){
+(function t(){
 if(i<text.length){
-div.innerHTML += text.charAt(i);
-i++;
-chat.scrollTop = chat.scrollHeight;
-setTimeout(type,12);
+div.innerHTML+=text[i++];
+chat.scrollTop=chat.scrollHeight;
+setTimeout(t,8);
 }else{
-saveChat();
+chats[current].messages.push({text,role:"bot"});
+save();
 }
-}
-type();
-}
-
-/* ---------- Save & Load Chat ---------- */
-function saveChat(){
-localStorage.setItem("anuga_chat", chat.innerHTML);
+})();
 }
 
-function loadChat(){
-let saved = localStorage.getItem("anuga_chat");
-if(saved) chat.innerHTML = saved;
-}
-loadChat();
+/* ---------- Send ---------- */
+document.getElementById("send").onclick=async()=>{
+if(!current) return;
 
-/* ---------- Clear Chat ---------- */
-clearBtn.onclick=()=>{
-localStorage.removeItem("anuga_chat");
-chat.innerHTML="";
-}
-
-/* ---------- Send Message ---------- */
-send.onclick = async ()=>{
 let q=input.value.trim();
 if(!q) return;
 
-addMsg(q,"user");
+addBubble(q,"user");
 input.value="";
 
-/* Image generation trigger */
-if(q.toLowerCase().startsWith("draw") || q.toLowerCase().startsWith("image")){
-let prompt=q.replace("draw","").replace("image","");
-typeBot("Generating image...");
-
-let res=await fetch(API_IMG+encodeURIComponent(prompt));
-let data=await res.json();
-
-addMsg(`<img src="${data.url}" style="max-width:100%;border-radius:12px">`,"bot");
-return;
+/* Set title */
+if(chats[current].messages.length===1){
+chats[current].title=q.substring(0,25);
+renderHistory();
 }
 
-/* Text AI */
+/* AI response */
 let res=await fetch(API_TEXT+encodeURIComponent(q));
 let data=await res.json();
 typeBot(data.results);
-}
+};
 
-/* Enter key send */
+/* Enter send */
 input.addEventListener("keypress",e=>{
-if(e.key==="Enter") send.click();
+if(e.key==="Enter") document.getElementById("send").click();
 });
