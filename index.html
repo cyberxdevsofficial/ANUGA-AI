@@ -5,27 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anuga AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Spectral:wght@400;600&display=swap" rel="stylesheet">
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&family=JetBrains+Mono&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="welcome" id="welcomeText"></div>
+<div class="background"></div>
 
-<div class="container">
+<div class="chat-container">
 
-<header>
-<h1>Anuga AI</h1>
-<button id="clearBtn">Clear Chat</button>
-</header>
+  <div class="chat-header">Anuga AI</div>
 
-<div id="chat"></div>
+  <div id="chatBox" class="chat-box"></div>
 
-<div class="inputArea">
-<input id="input" placeholder="Message Anuga AI..." />
-<button id="send">Send</button>
-</div>
+  <div class="input-container">
+    <input id="queryInput" type="text" placeholder="Ask anything or generate image..." />
+    <button onclick="sendQuery()">Send</button>
+  </div>
 
 </div>
 
