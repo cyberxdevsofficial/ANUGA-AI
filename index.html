@@ -5,30 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anuga AI</title>
 
-<!-- Premium Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@600&family=JetBrains+Mono&family=Spectral:wght@400;500;600&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="style.css">
+
+<!-- Premium Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;900&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-<div class="background"></div>
+<div class="welcome" id="welcome"></div>
 
 <div class="chat-container">
+    <div id="chat"></div>
 
-    <div class="chat-header">
-        Anuga AI
+    <div class="input-area">
+        <input id="input" placeholder="Message Anuga AI..." />
+        <button onclick="send()">Send</button>
     </div>
-
-    <div id="chatBox" class="chat-box"></div>
-
-    <div class="input-container">
-        <input id="queryInput" type="text" placeholder="Ask or generate image..." />
-        <button onclick="sendQuery()">Send</button>
-    </div>
-
 </div>
+
+<footer class="footer">
+    POWERED BY 
+    <span class="brand">ANUGA SENITHU IN DARK TECH ZONE TM</span>
+</footer>
 
 <script src="script.js"></script>
 </body>
