@@ -1,17 +1,12 @@
-/* Entire page as flex column */
 html, body {
     height: 100%;
     margin: 0;
     font-family: 'Inter', sans-serif;
     background: radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
-}
-
-body {
     display: flex;
     flex-direction: column;
 }
 
-/* Welcome text */
 .welcome{
     font-size:42px;
     color:white;
@@ -20,45 +15,42 @@ body {
     margin-top:20vh;
 }
 
-/* Main container */
 .app-container {
     display: flex;
     flex-direction: column;
-    flex: 1; /* <— this makes content fill available space */
+    flex: 1;
     overflow: hidden;
 }
 
-/* Chat messages */
 .chat {
-    flex: 1; /* <— allows this area to grow */
-    padding:20px;
-    overflow-y:auto;
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap:12px;
+    gap: 12px;
 }
 
-/* Message bubbles */
 .msg{
-    padding:14px 18px;
-    border-radius:12px;
-    max-width:75%;
-    animation:slide .3s ease;
+    padding: 14px 18px;
+    border-radius: 12px;
+    max-width: 75%;
+    animation: slide .3s ease;
 }
 
 .user{
-    background:#00c6ff;
-    color:black;
+    background: #00c6ff;
+    color: black;
     margin-left:auto;
 }
 
 .ai{
-    background:rgba(255,255,255,.1);
-    color:white;
-    font-family:'Cormorant Garamond',serif;
+    background: rgba(255,255,255,.1);
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
 }
 
-/* Input at bottom */
+/* Input area */
 .input-area{
     display:flex;
     border-top:1px solid rgba(255,255,255,.1);
@@ -69,7 +61,7 @@ input{
     flex:1;
     padding:12px 15px;
     border:none;
-    background:rgba(255,255,255,.15);
+    background:rgba(255,255,255,0.15);
     color:white;
     border-radius:8px;
     font-size:16px;
@@ -90,7 +82,11 @@ input{
     width:22px; height:22px;
 }
 
-/* Footer fixed */
+#sendBtn:hover{
+    background:#222;
+}
+
+/* Footer */
 .footer{
     text-align:center;
     padding:8px 0;
@@ -105,7 +101,34 @@ input{
     color:#fff;
 }
 
-/* Animation */
+/* Code blocks with copy button */
+pre{
+    background: rgba(0,0,0,0.2);
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-top:6px;
+}
+
+.copy-btn{
+    position: absolute;
+    top:4px;
+    right:4px;
+    background:#000;
+    color:#fff;
+    border:none;
+    padding:2px 8px;
+    font-size:12px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.copy-btn:hover{
+    background:#222;
+}
+
+/* Animations */
 @keyframes slide{
     from{transform:translateY(10px);opacity:0}
     to{transform:translateY(0);opacity:1}
@@ -120,4 +143,5 @@ input{
 @media(max-width:480px){
     .msg{max-width:90%;}
     input{font-size:13px;}
+    .welcome{font-size:28px;}
 }
