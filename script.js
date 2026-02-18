@@ -34,13 +34,59 @@ function typeMessage(el, text){
     type();
 }
 
-/* Add message to chat */
+/* Add message to chat with code support */
 function addMessage(text, cls){
     const div = document.createElement("div");
     div.className = "msg " + cls;
 
     if(cls === "ai"){
-        typeMessage(div, text);
+        const codeRegex = /```([\s\S]*?)```/g;
+        let lastIndex = 0;
+        let match;
+
+        while((match = codeRegex.exec(text)) !== null){
+            // Text before code
+            if(match.index > lastIndex){
+                const t = text.substring(lastIndex, match.index);
+                const span = document.createElement("span");
+                typeMessage(span, t);
+                div.appendChild(span);
+            }
+
+            // Code block
+            const codeBlock = document.createElement("pre");
+            const code = document.createElement("code");
+            code.textContent = match[1].trim();
+            codeBlock.appendChild(code);
+
+            // Copy button
+            const copyBtn = document.createElement("button");
+            copyBtn.textContent = "Copy";
+            copyBtn.className = "copy-btn";
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(code.textContent);
+                copyBtn.textContent = "Copied!";
+                setTimeout(()=>copyBtn.textContent = "Copy",1500);
+            };
+
+            const container = document.createElement("div");
+            container.style.position = "relative";
+            container.appendChild(copyBtn);
+            container.appendChild(codeBlock);
+
+            div.appendChild(container);
+
+            lastIndex = codeRegex.lastIndex;
+        }
+
+        // Remaining text after last code block
+        if(lastIndex < text.length){
+            const t = text.substring(lastIndex);
+            const span = document.createElement("span");
+            typeMessage(span, t);
+            div.appendChild(span);
+        }
+
     } else {
         div.textContent = text;
     }
@@ -71,7 +117,6 @@ async function send(){
     // IMAGE ROUTE
     if(isImagePrompt(q)){
         addMessage("🎨 Generating image...", "ai");
-
         try {
             const url = "https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=" + encodeURIComponent(q);
             const res = await fetch(url);
@@ -86,7 +131,7 @@ async function send(){
             div.appendChild(img);
             chat.appendChild(div);
             scrollToBottom();
-        } catch (err) {
+        } catch(err){
             addMessage("❌ Failed to generate image.", "ai");
         }
         return;
@@ -98,7 +143,7 @@ async function send(){
         const res = await fetch(url);
         const data = await res.json();
         addMessage(data.results || "No response.", "ai");
-    } catch (err) {
+    } catch(err){
         addMessage("❌ Failed to fetch response.", "ai");
     }
 }
