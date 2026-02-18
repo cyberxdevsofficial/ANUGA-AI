@@ -80,11 +80,18 @@ input{
 }
 
 button{
-    background:#00c6ff;
+    background:#000000; /* Black button */
+    color:#ffffff;       /* White text */
     border:none;
     padding:0 22px;
     font-size:16px;
     cursor:pointer;
+    border-radius:8px;
+    transition:0.3s;
+}
+
+button:hover{
+    background:#222222; /* Slight hover effect */
 }
 
 /* Footer */
