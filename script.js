@@ -1,99 +1,93 @@
-const chatBox=document.getElementById('chatBox');
+const chat = document.getElementById("chat");
+const input = document.getElementById("input");
+const welcome = document.getElementById("welcome");
 
-function autoWelcome(){
-    typeMessage('ai',"WELCOME TO ANUGA AI",120);
+/* Welcome typing */
+const text="Welcome to Anuga AI";
+let i=0;
+function typeWelcome(){
+    if(i<text.length){
+        welcome.innerHTML+=text.charAt(i);
+        i++;
+        setTimeout(typeWelcome,70);
+    }
+}
+typeWelcome();
+
+/* Detect image prompts */
+function isImagePrompt(t){
+    const words=[
+        "image","picture","photo","logo","design","draw","art",
+        "icon","banner","poster","wallpaper","generate",
+        "create image","make logo","illustration"
+    ];
+    t=t.toLowerCase();
+    return words.some(w=>t.includes(w));
 }
 
-function addMessage(sender,msg){
-    const div=document.createElement('div');
-    div.className='message '+sender;
-    div.textContent=msg;
-    chatBox.appendChild(div);
-    chatBox.scrollTop=chatBox.scrollHeight;
-}
-
-function typeMessage(sender,text,speed=40){
-    const div=document.createElement('div');
-    div.className='message '+sender+' typing';
-    chatBox.appendChild(div);
-
+/* Typing animation */
+function typeMessage(el,text){
     let i=0;
     function type(){
         if(i<text.length){
-            div.textContent+=text.charAt(i);
+            el.innerHTML+=text.charAt(i);
             i++;
-            chatBox.scrollTop=chatBox.scrollHeight;
-            setTimeout(type,speed);
-        }else{
-            div.classList.remove('typing');
+            setTimeout(type,15);
         }
     }
     type();
 }
 
-function showImage(url){
-    const div=document.createElement('div');
-    div.className='message ai';
+function addMessage(text,cls){
+    const div=document.createElement("div");
+    div.className="msg "+cls;
+    chat.appendChild(div);
 
-    const img=document.createElement('img');
-    img.src=url;
-    img.className='ai-image';
+    if(cls==="ai")
+        typeMessage(div,text);
+    else
+        div.innerHTML=text;
 
-    div.appendChild(img);
-    chatBox.appendChild(div);
-    chatBox.scrollTop=chatBox.scrollHeight;
+    chat.scrollTop=chat.scrollHeight;
 }
 
-function isImageRequest(text){
-    const triggers=[
-        "draw","image","generate image","create image",
-        "make image","picture","photo","art"
-    ];
-    return triggers.some(t=>text.toLowerCase().includes(t));
-}
+/* Send */
+async function send(){
+    const q=input.value;
+    if(!q) return;
 
-async function sendQuery(){
-    const input=document.getElementById('queryInput');
-    const text=input.value.trim();
-    if(!text) return;
+    addMessage(q,"user");
+    input.value="";
 
-    addMessage('user',text);
-    input.value='';
+    /* IMAGE ROUTE */
+    if(isImagePrompt(q)){
+        addMessage("🎨 Generating image...","ai");
 
-    const loader=document.createElement('div');
-    loader.className='message ai typing';
-    loader.textContent="Anuga AI is typing...";
-    chatBox.appendChild(loader);
+        const url="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(q);
+        const res=await fetch(url);
+        const data=await res.json();
 
-    try{
+        const img=document.createElement("img");
+        img.src=data.url || data.image;
+        img.style.maxWidth="300px";
 
-        // IMAGE MODE
-        if(isImageRequest(text)){
-            loader.textContent="Generating image...";
-            const imgURL="https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt="+encodeURIComponent(text);
-            loader.remove();
-            typeMessage('ai',"Here is your generated image:",28);
-            showImage(imgURL);
-            return;
-        }
+        const div=document.createElement("div");
+        div.className="msg ai";
+        div.appendChild(img);
+        chat.appendChild(div);
 
-        // TEXT MODE
-        let reply;
-        if(text.toLowerCase().includes("owner")){
-            reply="My owner is Anuga Senithu De Silva, born on 2013/01/20. He studied at G/Gintota National College in Sri Lanka and has strong technical expertise including development, hacking, and advanced computing skills.";
-        }else{
-            const res=await fetch("https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(text));
-            const data=await res.json();
-            reply=data.results || "No response received.";
-        }
-
-        loader.remove();
-        typeMessage('ai',reply,28);
-
-    }catch(e){
-        loader.remove();
-        typeMessage('ai',"Connection error.",28);
+        chat.scrollTop=chat.scrollHeight;
+        return;
     }
+
+    /* TEXT ROUTE */
+    const url="https://www.movanest.xyz/v2/powerbrainai?query="+encodeURIComponent(q);
+    const res=await fetch(url);
+    const data=await res.json();
+
+    addMessage(data.results,"ai");
 }
 
-window.onload=autoWelcome;
+input.addEventListener("keypress",e=>{
+    if(e.key==="Enter") send();
+});
