@@ -5,236 +5,343 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anuga AI</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<!-- Premium Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:wght@600;900&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
 
 <style>
-html,body{
-    margin:0;
-    height:100%;
-    font-family:'Inter',sans-serif;
-    background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    display:flex;
-    flex-direction:column;
+/* ===== General Styles ===== */
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top,#0f2027,#203a43,#2c5364);
+    display: flex;
+    flex-direction: column;
 }
 
-.chat{
-    flex:1;
-    overflow-y:auto;
-    padding:15px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+.welcome{
+    font-size:42px;
+    color:white;
+    font-family:'Playfair Display',serif;
+    text-align:center;
+    margin-top:20vh;
 }
 
+/* ===== Chat Container ===== */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* ===== Messages ===== */
 .msg{
-    padding:12px 16px;
-    border-radius:12px;
-    max-width:80%;
-    word-wrap:break-word;
+    padding: 14px 18px;
+    border-radius: 12px;
+    max-width: 75%;
+    animation: slide .3s ease;
 }
 
 .user{
-    background:#00c6ff;
-    color:black;
+    background: #00c6ff;
+    color: black;
     margin-left:auto;
 }
 
 .ai{
-    background:rgba(255,255,255,0.1);
-    color:white;
+    background: rgba(255,255,255,.1);
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
 }
 
+/* ===== Input Area ===== */
 .input-area{
     display:flex;
+    border-top:1px solid rgba(255,255,255,.1);
     padding:10px;
-    border-top:1px solid rgba(255,255,255,0.1);
-    gap:6px;
 }
 
 input{
     flex:1;
-    padding:12px;
+    padding:12px 15px;
     border:none;
-    border-radius:8px;
     background:rgba(255,255,255,0.15);
     color:white;
+    border-radius:8px;
+    font-size:16px;
 }
 
-button{
+#sendBtn{
+    background:#000;
     border:none;
+    margin-left:8px;
+    padding:0 14px;
     border-radius:8px;
+    display:flex;
+    align-items:center;
     cursor:pointer;
 }
 
-/* PLUS BUTTON */
-#uploadBtn{
-    background:#111;
-    color:white;
-    width:40px;
-    font-size:22px;
+#sendBtn img{
+    width:22px; height:22px;
 }
 
-/* SEND BUTTON */
-#sendBtn{
-    background:black;
-    color:white;
-    padding:0 16px;
+#sendBtn:hover{
+    background:#222;
 }
 
-/* Footer */
+/* ===== Footer ===== */
 .footer{
     text-align:center;
-    padding:8px;
+    padding:8px 0;
     font-size:12px;
-    background:rgba(0,0,0,0.3);
-    color:#ccc;
+    color:rgba(255,255,255,0.7);
+    background:rgba(0,0,0,0.35);
 }
 
 .brand{
     font-family:'Playfair Display',serif;
     font-weight:900;
-    color:white;
+    color:#fff;
 }
 
-/* Code blocks */
+/* ===== Code Blocks ===== */
 pre{
-    background:rgba(0,0,0,0.3);
-    padding:10px;
-    border-radius:8px;
-    overflow-x:auto;
+    background: rgba(0,0,0,0.2);
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-top:6px;
 }
 
 .copy-btn{
-    position:absolute;
-    right:5px;
-    top:5px;
-    background:black;
-    color:white;
+    position: absolute;
+    top:4px;
+    right:4px;
+    background:#000;
+    color:#fff;
+    border:none;
+    padding:2px 8px;
     font-size:12px;
-    padding:2px 6px;
+    border-radius:4px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.copy-btn:hover{
+    background:#222;
+}
+
+/* ===== Animations ===== */
+@keyframes slide{
+    from{transform:translateY(10px);opacity:0}
+    to{transform:translateY(0);opacity:1}
+}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+    .msg{max-width:85%;}
+    input{font-size:14px;}
+}
+
+@media(max-width:480px){
+    .msg{max-width:90%;}
+    input{font-size:13px;}
+    .welcome{font-size:28px;}
 }
 </style>
 </head>
 <body>
 
-<div id="chat" class="chat"></div>
+<div id="welcome" class="welcome"></div>
 
-<div class="input-area">
-    <input type="file" id="fileInput" hidden accept="image/*">
-    <button id="uploadBtn">+</button>
-    <input id="input" placeholder="Enter prompt...">
-    <button id="sendBtn">Send</button>
+<div class="app-container">
+    <div id="chat" class="chat"></div>
+
+    <div class="input-area">
+        <input id="input" placeholder="Message Anuga AI..." />
+        <button id="sendBtn">
+            <img src="https://img.icons8.com/ios-glyphs/30/ffffff/filled-sent.png"/>
+        </button>
+    </div>
 </div>
 
 <footer class="footer">
-POWERED BY <span class="brand">ANUGA SENITHU IN DARK TECH ZONE TM</span>
+    POWERED BY <span class="brand">ANUGA SENITHU IN DARK TECH ZONE TM</span>
 </footer>
 
 <script>
 const chat = document.getElementById("chat");
 const input = document.getElementById("input");
 const sendBtn = document.getElementById("sendBtn");
-const uploadBtn = document.getElementById("uploadBtn");
-const fileInput = document.getElementById("fileInput");
+const welcome = document.getElementById("welcome");
 
-let uploadedImageURL = null;
-
-/* Add message */
-function addMessage(text,cls){
-    const div=document.createElement("div");
-    div.className="msg "+cls;
-    div.textContent=text;
-    chat.appendChild(div);
-    chat.scrollTop=chat.scrollHeight;
+/* Welcome typing animation */
+const welcomeText = "Welcome to Anuga AI";
+let i = 0;
+function typeWelcome(){
+    if(i < welcomeText.length){
+        welcome.innerHTML += welcomeText.charAt(i);
+        i++;
+        setTimeout(typeWelcome, 70);
+    } else {
+        setTimeout(()=>welcome.style.display = "none", 800);
+    }
 }
 
-/* Upload button click */
-uploadBtn.onclick=()=>fileInput.click();
+/* Scroll chat to bottom */
+function scrollToBottom(){
+    chat.scrollTop = chat.scrollHeight;
+}
 
-/* Upload image to imgbb */
-fileInput.onchange=async()=>{
-    const file=fileInput.files[0];
-    if(!file) return;
-
-    addMessage("Uploading image...","ai");
-
-    const formData=new FormData();
-    formData.append("image",file);
-
-    try{
-        const res=await fetch("https://api.imgbb.com/1/upload?key=ec928269b51f9266fd93069778808d44",{
-            method:"POST",
-            body:formData
-        });
-
-        const data=await res.json();
-        uploadedImageURL=data.data.url;
-
-        addMessage("Image uploaded successfully.","ai");
-
-        // Show preview
-        const img=document.createElement("img");
-        img.src=uploadedImageURL;
-        img.style.maxWidth="200px";
-        const div=document.createElement("div");
-        div.className="msg user";
-        div.appendChild(img);
-        chat.appendChild(div);
-
-    }catch(err){
-        addMessage("Upload failed.","ai");
+/* Typing animation for AI messages */
+function typeMessage(el, text){
+    let i = 0;
+    function type(){
+        if(i < text.length){
+            el.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, 15);
+        }
     }
-};
+    type();
+}
 
-/* Send prompt */
-sendBtn.onclick=async()=>{
-    const prompt=input.value.trim();
-    if(!prompt) return;
+/* Add message to chat with code support */
+function addMessage(text, cls){
+    const div = document.createElement("div");
+    div.className = "msg " + cls;
 
-    addMessage(prompt,"user");
-    input.value="";
+    if(cls === "ai"){
+        const codeRegex = /```([\s\S]*?)```/g;
+        let lastIndex = 0;
+        let match;
 
-    if(!uploadedImageURL){
-        addMessage("Please upload an image first.","ai");
+        while((match = codeRegex.exec(text)) !== null){
+            // Text before code
+            if(match.index > lastIndex){
+                const t = text.substring(lastIndex, match.index);
+                const span = document.createElement("span");
+                typeMessage(span, t);
+                div.appendChild(span);
+            }
+
+            // Code block
+            const codeBlock = document.createElement("pre");
+            const code = document.createElement("code");
+            code.textContent = match[1].trim();
+            codeBlock.appendChild(code);
+
+            // Copy button
+            const copyBtn = document.createElement("button");
+            copyBtn.textContent = "Copy";
+            copyBtn.className = "copy-btn";
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(code.textContent);
+                copyBtn.textContent = "Copied!";
+                setTimeout(()=>copyBtn.textContent = "Copy",1500);
+            };
+
+            const container = document.createElement("div");
+            container.style.position = "relative";
+            container.appendChild(copyBtn);
+            container.appendChild(codeBlock);
+
+            div.appendChild(container);
+            lastIndex = codeRegex.lastIndex;
+        }
+
+        // Remaining text after last code block
+        if(lastIndex < text.length){
+            const t = text.substring(lastIndex);
+            const span = document.createElement("span");
+            typeMessage(span, t);
+            div.appendChild(span);
+        }
+
+    } else {
+        div.textContent = text;
+    }
+
+    chat.appendChild(div);
+    scrollToBottom();
+}
+
+/* Detect image-related prompts */
+function isImagePrompt(t){
+    const words = [
+        "image","picture","photo","logo","design","draw","art",
+        "icon","banner","poster","wallpaper","generate",
+        "create image","make logo","illustration"
+    ];
+    t = t.toLowerCase();
+    return words.some(w => t.includes(w));
+}
+
+/* Send user input */
+async function send(){
+    const q = input.value.trim();
+    if(!q) return;
+
+    addMessage(q, "user");
+    input.value = "";
+
+    // IMAGE ROUTE
+    if(isImagePrompt(q)){
+        addMessage("🎨 Generating image...", "ai");
+        try {
+            const url = "https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=" + encodeURIComponent(q);
+            const res = await fetch(url);
+            const data = await res.json();
+
+            const img = document.createElement("img");
+            img.src = data.url || data.image;
+            img.style.maxWidth = "280px";
+
+            const div = document.createElement("div");
+            div.className = "msg ai";
+            div.appendChild(img);
+            chat.appendChild(div);
+            scrollToBottom();
+        } catch(err){
+            addMessage("❌ Failed to generate image.", "ai");
+        }
         return;
     }
 
-    addMessage("Processing image...","ai");
-
-    try{
-        const apiURL=`https://www.movanest.xyz/v2/nanobanana-pub?image_url=${encodeURIComponent(uploadedImageURL)}&prompt=${encodeURIComponent(prompt)}&maxTries=20`;
-
-        const res=await fetch(apiURL);
-        const data=await res.json();
-
-        if(data.output_url){
-            const img=document.createElement("img");
-            img.src=data.output_url;
-            img.style.maxWidth="250px";
-
-            const div=document.createElement("div");
-            div.className="msg ai";
-            div.appendChild(img);
-            chat.appendChild(div);
-        }else{
-            addMessage("No image returned.","ai");
-        }
-
-    }catch(err){
-        addMessage("API failed.","ai");
+    // TEXT ROUTE
+    try {
+        const url = "https://www.movanest.xyz/v2/powerbrainai?query=" + encodeURIComponent(q);
+        const res = await fetch(url);
+        const data = await res.json();
+        addMessage(data.results || "No response.", "ai");
+    } catch(err){
+        addMessage("❌ Failed to fetch response.", "ai");
     }
+}
 
-    chat.scrollTop=chat.scrollHeight;
-};
-
-/* Enter key */
-input.addEventListener("keypress",e=>{
-    if(e.key==="Enter") sendBtn.click();
+/* Event listeners */
+sendBtn.addEventListener("click", send);
+input.addEventListener("keypress", e => {
+    if(e.key === "Enter") send();
 });
 
-/* Welcome */
-window.onload=()=>{
-    addMessage("Hello! Upload an image and enter a prompt.","ai");
+/* On page load */
+window.onload = () => {
+    typeWelcome();
+    setTimeout(() => {
+        addMessage("Hello! How can I help you today?", "ai");
+    }, welcomeText.length * 70 + 500);
 };
 </script>
 
