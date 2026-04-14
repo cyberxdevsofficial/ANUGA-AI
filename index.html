@@ -4,232 +4,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anuga AI</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root {
-            --primary-color: #4f46e5;
-            --bg-color: #f3f4f6;
-            --chat-bg: #ffffff;
-            --user-msg-bg: #4f46e5;
-            --ai-msg-bg: #e5e7eb;
-            --text-color: #1f2937;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            color: var(--text-color);
-        }
-
-        /* Login Screen */
-        #login-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            z-index: 10;
-            background-color: white;
-        }
-
-        .login-card {
-            text-align: center;
-            padding: 2rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .google-btn {
-            background-color: white;
-            color: #757575;
-            border: 1px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: background-color 0.3s;
-        }
-
-        .google-btn:hover {
-            background-color: #f1f1f1;
-        }
-
-        /* Chat Interface */
-        #app-container {
-            display: none; /* Hidden until logged in */
-            flex-direction: column;
-            width: 100%;
-            max-width: 800px;
-            height: 100%;
-            background-color: var(--chat-bg);
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        header {
-            padding: 1rem;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 10px;
-            line-height: 1.5;
-            word-wrap: break-word;
-        }
-
-        .user-message {
-            align-self: flex-end;
-            background-color: var(--user-msg-bg);
-            color: white;
-            border-bottom-right-radius: 2px;
-        }
-
-        .ai-message {
-            align-self: flex-start;
-            background-color: var(--ai-msg-bg);
-            color: var(--text-color);
-            border-bottom-left-radius: 2px;
-        }
-
-        .ai-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 5px;
-        }
-
-        .input-area {
-            padding: 1rem;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-            background-color: white;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 5px;
-            outline: none;
-        }
-
-        button.send-btn {
-            padding: 10px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button.send-btn:disabled {
-            background-color: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .mode-selector {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-            padding: 0 1rem;
-            background: #fff;
-            border-bottom: 1px solid #eee;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .chat-container { height: calc(100vh - 180px); overflow-y: auto; scroll-behavior: smooth; }
+        .message-bubble { max-width: 80%; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; line-height: 1.5; word-wrap: break-word; }
+        .user-msg { background-color: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .ai-msg { background-color: #1e293b; color: #cbd5e1; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #334155; }
+        .ai-msg img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        .mode-btn {
-            background: none;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            color: #666;
-            border-bottom: 2px solid transparent;
-        }
-
-        .mode-btn.active {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            font-weight: bold;
-        }
-
-        .loading {
-            font-style: italic;
-            color: #666;
-            font-size: 0.9em;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen">
 
-    <!-- Login Screen -->
-    <div id="login-screen">
-        <div class="login-card">
-            <h1>Welcome to Anuga AI</h1>
-            <p>Please sign in to continue</p>
-            <button id="google-login-btn" class="google-btn">
-                <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"></path>
-                    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.715H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"></path>
-                    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"></path>
-                    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.159 6.656 3.58 9 3.58z" fill="#EA4335"></path>
-                </svg>
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+        <div class="text-center p-8 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full mx-4">
+            <h1 class="text-4xl font-bold text-blue-500 mb-2">Anuga AI</h1>
+            <p class="text-slate-400 mb-8">Your intelligent assistant for Chat, Text & Images.</p>
+            <button id="google-login-btn" class="w-full bg-white text-slate-900 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-center gap-3">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
                 Sign in with Google
             </button>
+            <p id="login-error" class="text-red-400 mt-4 text-sm hidden"></p>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="app-container">
-        <header>
-            <h3>Anuga AI</h3>
-            <button id="logout-btn" style="background:none; border:1px solid white; color:white; padding:5px 10px; border-radius:4px; cursor:pointer;">Logout</button>
+    <!-- Main App Interface (Hidden until logged in) -->
+    <div id="app-interface" class="hidden flex-col h-full max-w-4xl mx-auto w-full border-x border-slate-800 relative">
+        
+        <!-- Header -->
+        <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/95 backdrop-blur sticky top-0 z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-robot text-white text-sm"></i>
+                </div>
+                <h1 class="font-bold text-xl tracking-tight">Anuga AI</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-name" class="text-sm text-slate-400 hidden sm:block">User</span>
+                <img id="user-avatar" src="" alt="User" class="w-8 h-8 rounded-full border border-slate-600 hidden">
+                <button id="logout-btn" class="text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
         </header>
 
-        <div class="mode-selector">
-            <button class="mode-btn active" onclick="setMode('chat')">Chat</button>
-            <button class="mode-btn" onclick="setMode('text')">Text Gen (Pollination)</button>
-            <button class="mode-btn" onclick="setMode('image')">Image Gen</button>
+        <!-- Chat Area -->
+        <div id="chat-history" class="chat-container flex-1 p-4 flex flex-col gap-2">
+            <!-- Welcome Message -->
+            <div class="ai-msg message-bubble">
+                Hello! I'm Anuga AI. 👋<br>
+                Select a mode below and start interacting!
+            </div>
         </div>
 
-        <div id="chat-history">
-            <div class="message ai-message">Hello! I am Anuga AI. Select a mode above and start interacting.</div>
-        </div>
+        <!-- Input Area -->
+        <div class="p-4 bg-slate-900 border-t border-slate-800">
+            
+            <!-- Mode Selector -->
+            <div class="flex gap-2 mb-3 overflow-x-auto pb-1">
+                <button onclick="setMode('chat')" id="btn-chat" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-blue-600 text-white transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-comments"></i> Chat
+                </button>
+                <button onclick="setMode('text')" id="btn-text" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-pen-nib"></i> Text Gen
+                </button>
+                <button onclick="setMode('image')" id="btn-image" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-image"></i> Image Gen
+                </button>
+            </div>
 
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off">
-            <button id="send-btn" class="send-btn">Send</button>
+            <!-- Input Form -->
+            <form id="input-form" class="relative flex items-center gap-2">
+                <input type="text" id="user-input" placeholder="Type your message..." 
+                    class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-500">
+                
+                <button type="submit" class="absolute right-2 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition w-10 h-10 flex items-center justify-center">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+            <p id="mode-indicator" class="text-xs text-slate-500 mt-2 text-center">Current Mode: Chatting with PowerBrain AI</p>
         </div>
     </div>
 
     <!-- Firebase SDKs -->
     <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // Your web app's Firebase configuration
+        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyAMOO_h3b-dYognoDEl9udim-cD4ZOBpXs",
             authDomain: "anuga-ai.firebaseapp.com",
@@ -245,171 +120,196 @@
         const provider = new GoogleAuthProvider();
 
         // DOM Elements
-        const loginScreen = document.getElementById('login-screen');
-        const appContainer = document.getElementById('app-container');
+        const loginOverlay = document.getElementById('login-overlay');
+        const appInterface = document.getElementById('app-interface');
         const loginBtn = document.getElementById('google-login-btn');
         const logoutBtn = document.getElementById('logout-btn');
+        const userNameDisplay = document.getElementById('user-name');
+        const userAvatarDisplay = document.getElementById('user-avatar');
+        const loginError = document.getElementById('login-error');
+        
+        // Chat Elements
         const chatHistory = document.getElementById('chat-history');
+        const inputForm = document.getElementById('input-form');
         const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
+        const modeIndicator = document.getElementById('mode-indicator');
 
-        let currentMode = 'chat'; // chat, text, image
+        // State
+        let currentMode = 'chat'; // 'chat', 'text', 'image'
 
-        // Auth State Observer
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in
-                loginScreen.style.display = 'none';
-                appContainer.style.display = 'flex';
-                console.log("Logged in as:", user.email);
-            } else {
-                // User is signed out
-                loginScreen.style.display = 'flex';
-                appContainer.style.display = 'none';
-            }
-        });
+        // --- Authentication Logic ---
 
-        // Login Function
         loginBtn.addEventListener('click', () => {
             signInWithPopup(auth, provider)
                 .then((result) => {
-                    console.log("Login successful");
+                    console.log("Logged in:", result.user.email);
                 }).catch((error) => {
-                    console.error("Login error:", error);
-                    alert("Login failed: " + error.message);
+                    console.error(error);
+                    loginError.textContent = error.message;
+                    loginError.classList.remove('hidden');
                 });
         });
 
-        // Logout Function
         logoutBtn.addEventListener('click', () => {
             signOut(auth).then(() => {
                 console.log("Logged out");
             });
         });
 
-        // Global Mode Setter
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                loginOverlay.classList.add('hidden');
+                appInterface.classList.remove('hidden');
+                appInterface.classList.add('flex');
+                
+                userNameDisplay.textContent = user.displayName;
+                userAvatarDisplay.src = user.photoURL;
+                userAvatarDisplay.classList.remove('hidden');
+                userNameDisplay.classList.remove('hidden');
+            } else {
+                // User is signed out
+                loginOverlay.classList.remove('hidden');
+                appInterface.classList.add('hidden');
+                appInterface.classList.remove('flex');
+            }
+        });
+
+        // --- UI Logic ---
+
         window.setMode = (mode) => {
             currentMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
             
-            // Update placeholder based on mode
-            if(mode === 'image') {
-                userInput.placeholder = "Describe an image to generate...";
+            // Update Buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-slate-800', 'text-slate-400');
+            });
+            
+            const activeBtn = document.getElementById(`btn-${mode}`);
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+            activeBtn.classList.add('bg-blue-600', 'text-white');
+
+            // Update Placeholder & Indicator
+            const indicatorText = document.getElementById('mode-indicator');
+            if (mode === 'chat') {
+                userInput.placeholder = "Ask anything...";
+                indicatorText.textContent = "Current Mode: Chatting with PowerBrain AI";
             } else if (mode === 'text') {
-                userInput.placeholder = "Enter text prompt for generation...";
-            } else {
-                userInput.placeholder = "Type your message...";
+                userInput.placeholder = "Enter prompt for text generation...";
+                indicatorText.textContent = "Current Mode: Text Generation (Pollination)";
+            } else if (mode === 'image') {
+                userInput.placeholder = "Describe the image you want...";
+                indicatorText.textContent = "Current Mode: Image Generation";
             }
+            
+            userInput.focus();
         };
 
-        // Send Message Logic
-        async function handleSend() {
-            const text = userInput.value.trim();
-            if (!text) return;
-
-            // Add User Message to UI
-            addMessage(text, 'user');
-            userInput.value = '';
-            setLoading(true);
-
-            try {
-                let responseContent = "";
-                let isImage = false;
-
-                if (currentMode === 'chat') {
-                    // API: https://www.movanest.xyz/v2/powerbrainai?query=
-                    const url = `https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(text)}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Chat API failed');
-                    // Assuming the API returns plain text or JSON. Adjust parsing if needed.
-                    responseContent = await res.text(); 
-                    
-                    // Clean up if it returns JSON wrapper like {"result": "..."}
-                    try {
-                        const json = JSON.parse(responseContent);
-                        if(json.result) responseContent = json.result;
-                        else if(json.response) responseContent = json.response;
-                    } catch(e) { /* It's likely plain text */ }
-
-                } else if (currentMode === 'text') {
-                    // API: https://www.movanest.xyz/v2/pollination?text=
-                    const url = `https://www.movanest.xyz/v2/pollination?text=${encodeURIComponent(text)}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Text Gen API failed');
-                    responseContent = await res.text();
-
-                } else if (currentMode === 'image') {
-                    // API: https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=
-                    const url = `https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(text)}`;
-                    const res = await fetch(url);
-                    if (!res.ok) throw new Error('Image API failed');
-                    
-                    // Assuming this API returns a JSON with an image URL
-                    const data = await res.json();
-                    
-                    // NOTE: You might need to adjust 'data.url' depending on the actual JSON structure returned by dtz-ai-api
-                    // Common structures: data.url, data.image, data[0].url
-                    const imageUrl = data.url || data.image || data.output || (typeof data === 'string' ? data : null);
-
-                    if (imageUrl) {
-                        responseContent = imageUrl;
-                        isImage = true;
-                    } else {
-                        responseContent = "Failed to generate image. API response: " + JSON.stringify(data);
-                    }
-                }
-
-                addMessage(responseContent, 'ai', isImage);
-
-            } catch (error) {
-                console.error(error);
-                addMessage("Error: Could not connect to Anuga AI service. " + error.message, 'ai');
-            } finally {
-                setLoading(false);
+        function appendMessage(role, content, isImage = false) {
+            const div = document.createElement('div');
+            div.className = `message-bubble ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
+            
+            if (isImage) {
+                div.innerHTML = `<p class="mb-2 text-sm opacity-80">Here is your image:</p><img src="${content}" alt="Generated Image" onload="scrollToBottom()">`;
+            } else {
+                // Simple newline to break conversion
+                div.innerHTML = content.replace(/\n/g, '<br>');
             }
+            
+            chatHistory.appendChild(div);
+            scrollToBottom();
         }
 
-        // UI Helpers
-        function addMessage(content, sender, isImage = false) {
+        function showLoading() {
             const div = document.createElement('div');
-            div.classList.add('message');
-            div.classList.add(sender === 'user' ? 'user-message' : 'ai-message');
-
-            if (isImage) {
-                const img = document.createElement('img');
-                img.src = content;
-                img.classList.add('ai-image');
-                img.alt = "Generated Image";
-                div.appendChild(img);
-            } else {
-                div.textContent = content;
-            }
-
+            div.id = 'loading-bubble';
+            div.className = 'message-bubble ai-msg';
+            div.innerHTML = '<div class="loader"></div>';
             chatHistory.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeLoading() {
+            const loader = document.getElementById('loading-bubble');
+            if (loader) loader.remove();
+        }
+
+        function scrollToBottom() {
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
 
-        function setLoading(isLoading) {
-            sendBtn.disabled = isLoading;
-            userInput.disabled = isLoading;
-            if (isLoading) {
-                const loadingDiv = document.createElement('div');
-                loadingDiv.id = 'loading-indicator';
-                loadingDiv.classList.add('message', 'ai-message', 'loading');
-                loadingDiv.textContent = 'Anuga AI is thinking...';
-                chatHistory.appendChild(loadingDiv);
-                chatHistory.scrollTop = chatHistory.scrollHeight;
-            } else {
-                const loadingDiv = document.getElementById('loading-indicator');
-                if (loadingDiv) loadingDiv.remove();
-            }
-        }
+        // --- API Interaction Logic ---
 
-        // Event Listeners
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
+        inputForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            // 1. Show User Message
+            appendMessage('user', query);
+            userInput.value = '';
+            showLoading();
+
+            try {
+                let responseText = "";
+                let isImage = false;
+
+                // 2. Call API based on Mode
+                if (currentMode === 'image') {
+                    // Image Generation
+                    const apiUrl = `https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(query)}`;
+                    
+                    // Note: Most image APIs return the image URL directly or JSON with URL. 
+                    // Assuming this specific endpoint returns the direct image URL string or JSON { url: "..." }
+                    // We will fetch and check.
+                    const res = await fetch(apiUrl);
+                    const data = await res.json(); // Assuming JSON response first
+                    
+                    // Handling different possible return structures from generic image APIs
+                    if (data.url) {
+                        responseText = data.url;
+                    } else if (data.image) {
+                        responseText = data.image;
+                    } else if (typeof data === 'string' && data.startsWith('http')) {
+                        responseText = data;
+                    } else {
+                        // Fallback if it returns raw image blob (unlikely for this setup but possible)
+                        // For now, assume it returns a JSON with a URL field based on typical Vercel AI wrappers
+                        // If the API returns the URL directly as text:
+                         responseText = await res.text();
+                    }
+                    
+                    isImage = true;
+
+                } else if (currentMode === 'chat') {
+                    // Chatting (PowerBrain)
+                    const apiUrl = `https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(query)}`;
+                    const res = await fetch(apiUrl);
+                    const data = await res.json();
+                    
+                    // Requirement: "answer is in result"
+                    responseText = data.result || "No response received.";
+
+                } else if (currentMode === 'text') {
+                    // Text Generating (Pollination)
+                    const apiUrl = `https://www.movanest.xyz/v2/pollination?text=${encodeURIComponent(query)}`;
+                    const res = await fetch(apiUrl);
+                    const data = await res.json();
+                    
+                    // Requirement: "answer is in result"
+                    responseText = data.result || "No response received.";
+                }
+
+                // 3. Display AI Response
+                removeLoading();
+                appendMessage('ai', responseText, isImage);
+
+            } catch (error) {
+                removeLoading();
+                console.error(error);
+                appendMessage('ai', "Sorry, I encountered an error connecting to the service.");
+            }
         });
 
     </script>
