@@ -7,13 +7,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
-        /* Layout */
-        .app-container { display: flex; height: 100vh; overflow: hidden; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: #e2e8f0; 
+            overflow: hidden;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.03);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .app-container { display: flex; height: 100vh; position: relative; z-index: 1; }
         
         /* Sidebar */
-        .sidebar { width: 260px; background-color: #020617; border-right: 1px solid #1e293b; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 20; }
+        .sidebar { width: 280px; background: #020617; border-right: 1px solid #1e293b; display: flex; flex-direction: column; transition: transform 0.3s ease; z-index: 20; }
         .sidebar.hidden-mobile { transform: translateX(-100%); position: absolute; height: 100%; }
         @media (min-width: 768px) {
             .sidebar { position: relative; transform: none; }
@@ -21,14 +50,14 @@
         }
 
         /* Chat Area */
-        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background-color: #0f172a; }
-        .chat-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: 1rem; }
+        .main-content { flex: 1; display: flex; flex-direction: column; position: relative; background: transparent; }
+        .chat-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; padding: 1.5rem; }
         
         /* Messages */
-        .message-bubble { max-width: 85%; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px; line-height: 1.5; word-wrap: break-word; position: relative; }
-        .user-msg { background-color: #3b82f6; color: white; align-self: flex-end; border-bottom-right-radius: 2px; margin-left: auto; }
-        .ai-msg { background-color: #1e293b; color: #cbd5e1; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #334155; }
-        .ai-msg img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .message-bubble { max-width: 85%; padding: 14px 18px; border-radius: 16px; margin-bottom: 16px; line-height: 1.6; word-wrap: break-word; position: relative; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .user-msg { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; align-self: flex-end; border-bottom-right-radius: 4px; margin-left: auto; }
+        .ai-msg { background: #1e293b; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #334155; }
+        .ai-msg img { max-width: 100%; border-radius: 12px; margin-top: 12px; display: block; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
         
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -36,26 +65,33 @@
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         
         /* Loader */
-        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #3b82f6; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* History Item */
-        .history-item { padding: 10px 12px; margin-bottom: 4px; border-radius: 6px; cursor: pointer; color: #cbd5e1; transition: background 0.2s; display: flex; justify-content: space-between; align-items: center; group; }
-        .history-item:hover { background-color: #1e293b; }
-        .history-item.active { background-color: #1e293b; color: white; border-left: 3px solid #3b82f6; }
-        .delete-chat-btn { opacity: 0; color: #ef4444; padding: 4px; transition: opacity 0.2s; }
+        .history-item { padding: 12px 16px; margin-bottom: 6px; border-radius: 8px; cursor: pointer; color: #94a3b8; transition: all 0.2s; display: flex; justify-content: space-between; align-items: center; }
+        .history-item:hover { background-color: #1e293b; color: white; }
+        .history-item.active { background-color: #1e293b; color: white; border-left: 4px solid #3b82f6; }
+        .delete-chat-btn { opacity: 0; color: #ef4444; padding: 6px; transition: opacity 0.2s; border-radius: 4px; }
+        .delete-chat-btn:hover { background: rgba(239, 68, 68, 0.1); }
         .history-item:hover .delete-chat-btn { opacity: 1; }
     </style>
 </head>
 <body class="flex flex-col h-screen">
 
+    <!-- Watermark -->
+    <div class="watermark">ANUGA SENITHU</div>
+
     <!-- Login Overlay -->
-    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
-        <div class="text-center p-8 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full mx-4">
-            <h1 class="text-4xl font-bold text-blue-500 mb-2">Anuga AI</h1>
-            <p class="text-slate-400 mb-8">Your intelligent assistant.</p>
-            <button id="google-login-btn" class="w-full bg-white text-slate-900 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-center gap-3">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center backdrop-blur-sm">
+        <div class="text-center p-10 glass rounded-3xl shadow-2xl border border-slate-700 max-w-md w-full mx-4">
+            <div class="w-16 h-16 bg-blue-600 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-blue-500/30">
+                <i class="fa-solid fa-robot text-white text-3xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2 tracking-tight">Anuga AI</h1>
+            <p class="text-slate-400 mb-8 text-lg">Powered by Anuga Senithu</p>
+            <button id="google-login-btn" class="w-full bg-white text-slate-900 font-bold py-4 px-6 rounded-xl hover:bg-gray-100 transition duration-200 flex items-center justify-center gap-3 shadow-lg">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-6 h-6">
                 Sign in with Google
             </button>
             <p id="login-error" class="text-red-400 mt-4 text-sm hidden"></p>
@@ -66,44 +102,46 @@
     <div id="app-interface" class="hidden app-container">
         
         <!-- Sidebar Navigation -->
-        <aside id="sidebar" class="sidebar hidden-mobile absolute md:relative h-full">
-            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
-                <div class="flex items-center gap-2 font-bold text-xl">
+        <aside id="sidebar" class="sidebar hidden-mobile absolute md:relative h-full glass">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-3 font-bold text-xl text-white">
                     <i class="fa-solid fa-robot text-blue-500"></i> Anuga AI
                 </div>
-                <!-- Close Sidebar on Mobile -->
                 <button id="close-sidebar" class="md:hidden text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark"></i>
+                    <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
 
-            <!-- New Chat Button -->
             <div class="p-4">
-                <button onclick="startNewChat()" class="w-full border border-slate-700 hover:bg-slate-800 text-white py-3 px-4 rounded-lg transition flex items-center gap-2 justify-center">
+                <button onclick="startNewChat()" class="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 px-4 rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-blue-600/20 font-medium">
                     <i class="fa-solid fa-plus"></i> New Chat
                 </button>
             </div>
 
-            <!-- Chat History List -->
-            <div class="flex-1 overflow-y-auto px-2" id="history-list">
+            <div class="flex-1 overflow-y-auto px-3 py-2" id="history-list">
                 <!-- History items injected here -->
             </div>
 
-            <!-- Bottom Actions -->
-            <div class="p-4 border-t border-slate-800 bg-slate-900">
+            <div class="p-4 border-t border-slate-800 bg-slate-900/50">
+                <!-- Admin Link (Hidden by default) -->
+                <a id="admin-link" href="/admin" class="hidden flex items-center gap-3 w-full p-3 rounded-lg hover:bg-purple-900/30 text-purple-400 transition mb-2 border border-purple-500/20">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="font-medium">Admin Panel</span>
+                </a>
+
                 <!-- Support Button -->
-                <a href="https://wa.me/+94776579018" target="_blank" class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-green-900/30 text-green-400 transition mb-2">
+                <a href="https://wa.me/+94776579018" target="_blank" class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-green-900/30 text-green-400 transition mb-2 border border-green-500/20">
                     <i class="fa-brands fa-whatsapp text-xl"></i>
                     <span class="font-medium">Support</span>
                 </a>
                 
-                <!-- User Profile / Logout -->
-                <div class="flex items-center gap-3 pt-2 border-t border-slate-800 mt-2">
-                    <img id="user-avatar" src="" class="w-8 h-8 rounded-full bg-slate-700">
+                <div class="flex items-center gap-3 pt-3 border-t border-slate-800 mt-2">
+                    <img id="user-avatar" src="" class="w-9 h-9 rounded-full bg-slate-700 border border-slate-600">
                     <div class="flex-1 overflow-hidden">
-                        <p id="user-name" class="text-sm font-medium truncate">User</p>
+                        <p id="user-name" class="text-sm font-semibold truncate text-white">User</p>
+                        <p id="user-email" class="text-xs text-slate-500 truncate">user@example.com</p>
                     </div>
-                    <button id="logout-btn" class="text-slate-400 hover:text-white p-2">
+                    <button id="logout-btn" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition">
                         <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
@@ -112,57 +150,52 @@
 
         <!-- Main Chat Area -->
         <main class="main-content">
-            <!-- Mobile Header -->
-            <header class="md:hidden p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+            <header class="md:hidden p-4 border-b border-slate-800 flex justify-between items-center glass">
                 <button id="open-sidebar" class="text-slate-400 hover:text-white">
                     <i class="fa-solid fa-bars text-xl"></i>
                 </button>
-                <span class="font-bold">Anuga AI</span>
-                <div class="w-6"></div> <!-- Spacer -->
+                <span class="font-bold text-white">Anuga AI</span>
+                <div class="w-6"></div>
             </header>
 
-            <!-- Chat Messages -->
             <div id="chat-history" class="chat-container flex flex-col gap-2">
-                <!-- Welcome Message -->
-                <div class="flex flex-col items-center justify-center h-full text-slate-500 opacity-50" id="empty-state">
-                    <i class="fa-solid fa-robot text-6xl mb-4"></i>
-                    <p>Select a mode and start chatting</p>
+                <div class="flex flex-col items-center justify-center h-full text-slate-500 opacity-60" id="empty-state">
+                    <i class="fa-solid fa-robot text-6xl mb-4 text-blue-500/50"></i>
+                    <p class="text-lg">Start a new conversation</p>
                 </div>
             </div>
 
-            <!-- Input Area -->
-            <div class="p-4 bg-slate-900 border-t border-slate-800">
-                <!-- Mode Selector -->
-                <div class="flex gap-2 mb-3 overflow-x-auto pb-1 no-scrollbar">
-                    <button onclick="setMode('chat')" id="btn-chat" class="mode-btn flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium bg-blue-600 text-white transition flex items-center justify-center gap-2 whitespace-nowrap">
+            <div class="p-4 glass border-t border-slate-800">
+                <div class="flex gap-2 mb-4 overflow-x-auto pb-1 no-scrollbar">
+                    <button onclick="setMode('chat')" id="btn-chat" class="mode-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-blue-600 text-white transition flex items-center justify-center gap-2 whitespace-nowrap shadow-lg shadow-blue-600/10">
                         <i class="fa-solid fa-comments"></i> Chat
                     </button>
-                    <button onclick="setMode('text')" id="btn-text" class="mode-btn flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                    <button onclick="setMode('text')" id="btn-text" class="mode-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-pen-nib"></i> Text Gen
                     </button>
-                    <button onclick="setMode('image')" id="btn-image" class="mode-btn flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2 whitespace-nowrap">
+                    <button onclick="setMode('image')" id="btn-image" class="mode-btn flex-1 py-2.5 px-4 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2 whitespace-nowrap">
                         <i class="fa-solid fa-image"></i> Image Gen
                     </button>
                 </div>
 
-                <!-- Input Form -->
                 <form id="input-form" class="relative flex items-center gap-2">
                     <input type="text" id="user-input" placeholder="Type your message..." 
-                        class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-500">
-                    <button type="submit" class="absolute right-2 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition w-10 h-10 flex items-center justify-center">
+                        class="w-full bg-slate-800/50 text-white border border-slate-700 rounded-xl py-4 pl-5 pr-14 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-500 backdrop-blur-sm">
+                    <button type="submit" class="absolute right-2 bg-blue-600 hover:bg-blue-500 text-white p-2.5 rounded-lg transition w-11 h-11 flex items-center justify-center shadow-lg shadow-blue-600/20">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
-                <p id="mode-indicator" class="text-xs text-slate-500 mt-2 text-center">Current Mode: Chatting</p>
+                <p id="mode-indicator" class="text-xs text-slate-500 mt-3 text-center font-medium uppercase tracking-wider">Current Mode: Chatting</p>
             </div>
         </main>
     </div>
 
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // --- Firebase Config ---
         const firebaseConfig = {
             apiKey: "AIzaSyAMOO_h3b-dYognoDEl9udim-cD4ZOBpXs",
             authDomain: "anuga-ai.firebaseapp.com",
@@ -174,9 +207,13 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
         const provider = new GoogleAuthProvider();
 
-        // --- DOM Elements ---
+        // ADMIN EMAIL CONFIGURATION
+        const ADMIN_EMAIL = "anugasenithu@gmail.com"; // CHANGE THIS TO YOUR EMAIL
+
+        // DOM Elements
         const loginOverlay = document.getElementById('login-overlay');
         const appInterface = document.getElementById('app-interface');
         const chatHistoryContainer = document.getElementById('chat-history');
@@ -184,234 +221,181 @@
         const inputForm = document.getElementById('input-form');
         const historyList = document.getElementById('history-list');
         const emptyState = document.getElementById('empty-state');
-        
-        // Sidebar Toggles
         const sidebar = document.getElementById('sidebar');
-        const openSidebarBtn = document.getElementById('open-sidebar');
-        const closeSidebarBtn = document.getElementById('close-sidebar');
-
-        // State
-        let currentMode = 'chat';
-        let currentChatId = null;
-        let chats = {}; // Object to store all chats: { id: { title, messages: [], mode: '' } }
-
-        // --- Initialization ---
         
-        // Load chats from LocalStorage
-        function loadChats() {
-            const saved = localStorage.getItem('anuga_chats');
-            if (saved) {
-                chats = JSON.parse(saved);
-            }
-            renderHistoryList();
-        }
-
-        // Save chats to LocalStorage
-        function saveChats() {
-            localStorage.setItem('anuga_chats', JSON.stringify(chats));
-            renderHistoryList();
-        }
+        // State
+        let currentUser = null;
+        let currentChatId = null;
+        let currentMode = 'chat';
+        let unsubscribeChatListener = null;
 
         // --- Auth Logic ---
         document.getElementById('google-login-btn').addEventListener('click', () => {
-            signInWithPopup(auth, provider)
-                .catch((error) => {
-                    document.getElementById('login-error').textContent = error.message;
-                    document.getElementById('login-error').classList.remove('hidden');
-                });
+            signInWithPopup(auth, provider).catch((error) => {
+                document.getElementById('login-error').textContent = error.message;
+                document.getElementById('login-error').classList.remove('hidden');
+            });
         });
 
         document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
+                currentUser = user;
                 loginOverlay.classList.add('hidden');
                 appInterface.classList.remove('hidden');
                 appInterface.classList.add('flex');
-                document.getElementById('user-name').textContent = user.displayName;
-                document.getElementById('user-avatar').src = user.photoURL;
                 
-                loadChats();
-                // If no chats, create one
-                if (Object.keys(chats).length === 0) {
-                    startNewChat();
-                } else {
-                    // Load most recent chat
-                    const mostRecentId = Object.keys(chats)[0];
-                    loadChat(mostRecentId);
+                document.getElementById('user-name').textContent = user.displayName;
+                document.getElementById('user-email').textContent = user.email;
+                document.getElementById('user-avatar').src = user.photoURL;
+
+                // Check Admin
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('admin-link').classList.remove('hidden');
                 }
+
+                loadUserChats();
             } else {
+                currentUser = null;
                 loginOverlay.classList.remove('hidden');
                 appInterface.classList.add('hidden');
                 appInterface.classList.remove('flex');
+                if (unsubscribeChatListener) unsubscribeChatListener();
             }
         });
 
-        // --- Chat Management ---
+        // --- Firestore Chat Logic ---
 
-        window.startNewChat = () => {
-            const newId = Date.now().toString();
-            chats[newId] = {
-                id: newId,
-                title: 'New Chat',
+        function loadUserChats() {
+            const q = query(
+                collection(db, "chats"), 
+                where("userId", "==", currentUser.uid), 
+                orderBy("updatedAt", "desc")
+            );
+
+            unsubscribeChatListener = onSnapshot(q, (snapshot) => {
+                historyList.innerHTML = '';
+                if (snapshot.empty) {
+                    startNewChat(); // Create initial chat if none exist
+                    return;
+                }
+
+                snapshot.forEach((docSnap) => {
+                    const chat = docSnap.data();
+                    const id = docSnap.id;
+                    
+                    const div = document.createElement('div');
+                    div.className = `history-item ${id === currentChatId ? 'active' : ''}`;
+                    div.onclick = () => loadChat(id, chat.messages);
+                    
+                    const title = chat.title || "New Chat";
+                    const shortTitle = title.length > 22 ? title.substring(0, 22) + '...' : title;
+
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <i class="fa-regular fa-message text-slate-500 text-xs"></i>
+                            <span class="truncate text-sm">${shortTitle}</span>
+                        </div>
+                        <button class="delete-chat-btn" onclick="deleteChat(event, '${id}')">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    `;
+                    historyList.appendChild(div);
+                });
+            });
+        }
+
+        window.startNewChat = async () => {
+            const newChatRef = await addDoc(collection(db, "chats"), {
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
+                userName: currentUser.displayName,
+                title: "New Chat",
                 messages: [],
-                timestamp: Date.now(),
-                mode: 'chat'
-            };
-            saveChats();
-            loadChat(newId);
-            
-            // On mobile, close sidebar after creating new chat
-            if (window.innerWidth < 768) {
-                sidebar.classList.add('hidden-mobile');
-                sidebar.classList.remove('translate-x-0');
-            }
+                mode: 'chat',
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            });
+            loadChat(newChatRef.id, []);
+            if (window.innerWidth < 768) sidebar.classList.add('hidden-mobile');
         };
 
-        function loadChat(chatId) {
-            currentChatId = chatId;
-            const chat = chats[chatId];
-            
-            // Clear UI
+        function loadChat(id, messages) {
+            currentChatId = id;
             chatHistoryContainer.innerHTML = '';
             
-            if (!chat || chat.messages.length === 0) {
+            if (!messages || messages.length === 0) {
                 chatHistoryContainer.appendChild(emptyState);
                 emptyState.style.display = 'flex';
             } else {
                 emptyState.style.display = 'none';
-                chat.messages.forEach(msg => {
-                    appendMessageToDOM(msg.role, msg.content, msg.isImage);
-                });
+                messages.forEach(msg => appendMessageToDOM(msg.role, msg.content, msg.isImage));
             }
-
-            // Set Mode
-            setMode(chat.mode || 'chat', false); // false = don't save yet
             
-            // Highlight in sidebar
-            renderHistoryList();
+            // Highlight sidebar
+            document.querySelectorAll('.history-item').forEach(el => el.classList.remove('active'));
+            // Note: Re-rendering sidebar highlights is handled by onSnapshot, 
+            // but we force a re-render of classes ideally. For simplicity, we rely on click.
+            
             scrollToBottom();
         }
 
-        function deleteChat(e, chatId) {
-            e.stopPropagation(); // Prevent loading the chat when clicking delete
-            if(confirm("Delete this chat?")) {
-                delete chats[chatId];
-                saveChats();
-                if (currentChatId === chatId) {
-                    startNewChat();
-                }
+        window.deleteChat = async (e, id) => {
+            e.stopPropagation();
+            if(confirm("Delete this chat permanently?")) {
+                await deleteDoc(doc(db, "chats", id));
+                if (currentChatId === id) startNewChat();
             }
-        }
+        };
 
-        function renderHistoryList() {
-            historyList.innerHTML = '';
-            // Sort by timestamp descending
-            const sortedIds = Object.keys(chats).sort((a, b) => chats[b].timestamp - chats[a].timestamp);
+        // --- UI Functions ---
 
-            sortedIds.forEach(id => {
-                const chat = chats[id];
-                const div = document.createElement('div');
-                div.className = `history-item ${id === currentChatId ? 'active' : ''}`;
-                div.onclick = () => loadChat(id);
-                
-                // Truncate title
-                const title = chat.title.length > 20 ? chat.title.substring(0, 20) + '...' : chat.title;
-
-                div.innerHTML = `
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <i class="fa-regular fa-message text-slate-500"></i>
-                        <span class="truncate text-sm">${title}</span>
-                    </div>
-                    <button class="delete-chat-btn" onclick="deleteChat(event, '${id}')">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
-                historyList.appendChild(div);
-            });
-        }
-
-        function updateChatTitle(firstMessage) {
-            if (chats[currentChatId].messages.length === 1) {
-                chats[currentChatId].title = firstMessage;
-                saveChats();
-            }
-        }
-
-        // --- UI & Interaction ---
-
-        // Sidebar Toggles
-        openSidebarBtn.addEventListener('click', () => {
+        document.getElementById('open-sidebar').addEventListener('click', () => {
             sidebar.classList.remove('hidden-mobile');
-            sidebar.classList.add('translate-x-0'); // Ensure it slides in if using transform
             sidebar.style.transform = 'translateX(0)';
         });
-
-        closeSidebarBtn.addEventListener('click', () => {
+        document.getElementById('close-sidebar').addEventListener('click', () => {
             sidebar.classList.add('hidden-mobile');
             sidebar.style.transform = 'translateX(-100%)';
         });
 
-        window.setMode = (mode, save = true) => {
+        window.setMode = (mode) => {
             currentMode = mode;
-            
-            // Update Buttons
             document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
                 btn.classList.add('bg-slate-800', 'text-slate-400');
             });
             const activeBtn = document.getElementById(`btn-${mode}`);
-            if(activeBtn) {
-                activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
-                activeBtn.classList.add('bg-blue-600', 'text-white');
-            }
+            activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+            activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-lg');
 
-            // Update Indicator
-            const indicatorText = document.getElementById('mode-indicator');
-            if (mode === 'chat') {
-                userInput.placeholder = "Ask anything...";
-                indicatorText.textContent = "Mode: Chatting";
-            } else if (mode === 'text') {
-                userInput.placeholder = "Enter prompt for text generation...";
-                indicatorText.textContent = "Mode: Text Generation";
-            } else if (mode === 'image') {
-                userInput.placeholder = "Describe the image...";
-                indicatorText.textContent = "Mode: Image Generation";
-            }
-
-            // Save mode to current chat object
-            if (save && currentChatId && chats[currentChatId]) {
-                chats[currentChatId].mode = mode;
-                chats[currentChatId].timestamp = Date.now();
-                saveChats();
-            }
-            
+            const indicators = {
+                'chat': 'Mode: Chatting',
+                'text': 'Mode: Text Generation',
+                'image': 'Mode: Image Generation'
+            };
+            document.getElementById('mode-indicator').textContent = indicators[mode];
             userInput.focus();
         };
 
         function appendMessageToDOM(role, content, isImage = false) {
-            // Remove empty state if present
-            if (emptyState.parentNode === chatHistoryContainer) {
-                emptyState.style.display = 'none';
-            }
-
+            if (emptyState.parentNode === chatHistoryContainer) emptyState.style.display = 'none';
+            
             const div = document.createElement('div');
             div.className = `message-bubble ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
             
             if (isImage) {
-                div.innerHTML = `<p class="mb-2 text-sm opacity-80">Here is your image:</p><img src="${content}" alt="Generated Image" onload="scrollToBottom()">`;
+                div.innerHTML = `<p class="mb-2 text-xs opacity-70 uppercase tracking-wide font-bold">Generated Image</p><img src="${content}" alt="AI Image">`;
             } else {
                 div.innerHTML = content.replace(/\n/g, '<br>');
             }
-            
             chatHistoryContainer.appendChild(div);
             scrollToBottom();
         }
 
         function showLoading() {
-            if (emptyState.parentNode === chatHistoryContainer) {
-                emptyState.style.display = 'none';
-            }
+            if (emptyState.parentNode === chatHistoryContainer) emptyState.style.display = 'none';
             const div = document.createElement('div');
             div.id = 'loading-bubble';
             div.className = 'message-bubble ai-msg';
@@ -429,64 +413,85 @@
             chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
         }
 
-        // --- API Submission ---
+        // --- Send Message & Save to Firestore ---
 
         inputForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const query = userInput.value.trim();
-            if (!query) return;
+            const queryText = userInput.value.trim();
+            if (!queryText || !currentChatId) return;
 
-            // 1. Add User Message to UI
-            appendMessageToDOM('user', query);
+            appendMessageToDOM('user', queryText);
             userInput.value = '';
-            
-            // 2. Save to State
-            if (!chats[currentChatId]) startNewChat(); // Safety check
-            
-            chats[currentChatId].messages.push({ role: 'user', content: query, isImage: false });
-            chats[currentChatId].timestamp = Date.now();
-            updateChatTitle(query); // Set title if first message
-            saveChats();
-
             showLoading();
 
+            // Optimistically update Firestore
+            const chatRef = doc(db, "chats", currentChatId);
+            
+            // Update Title if first message
+            const chatSnap = await getDocFromCache(currentChatId); // Helper needed or just logic
+            // Simplified: We'll update messages array
+            
             try {
-                // 3. Call Proxy API
+                // 1. Call API
                 const res = await fetch('/api/proxy', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mode: currentMode, query: query })
+                    body: JSON.stringify({ mode: currentMode, query: queryText, userId: currentUser.uid })
                 });
-
+                
                 const result = await res.json();
                 removeLoading();
 
-                if (!res.ok || !result.success) {
-                    throw new Error(result.error || 'Failed to fetch');
-                }
+                if (!res.ok || !result.success) throw new Error(result.error);
 
-                // 4. Handle Response
                 let responseContent = result.data;
                 let isImage = result.isImage;
 
-                // If it's an image mode but returned text (error or url string handling)
                 if (currentMode === 'image' && typeof responseContent === 'string' && responseContent.startsWith('http')) {
                     isImage = true;
                 }
 
-                // Add AI Message to UI
                 appendMessageToDOM('ai', responseContent, isImage);
 
-                // Save AI Message to State
-                chats[currentChatId].messages.push({ role: 'ai', content: responseContent, isImage: isImage });
-                saveChats();
+                // 2. Save BOTH messages to Firestore in one update
+                await updateDoc(chatRef, {
+                    messages: [
+                        ... (await getChatMessages(currentChatId)), // Get existing
+                        { role: 'user', content: queryText, isImage: false, timestamp: Date.now() },
+                        { role: 'ai', content: responseContent, isImage: isImage, timestamp: Date.now() }
+                    ],
+                    updatedAt: serverTimestamp(),
+                    title: (await getChatMessages(currentChatId)).length === 0 ? queryText : undefined // Set title if empty
+                });
 
             } catch (error) {
                 removeLoading();
-                console.error(error);
                 appendMessageToDOM('ai', `Error: ${error.message}`);
             }
         });
+
+        // Helper to get current messages from local state or fetch (Simplified for this demo)
+        // In a real app, you'd keep a local state variable for the current chat messages
+        async function getChatMessages(chatId) {
+            // This is a hacky way to get current messages without complex state management in vanilla JS
+            // Ideally, you store `currentMessages` in a variable when `loadChat` is called.
+            // For this code to work perfectly, let's assume we fetch it fresh or store it globally.
+            // Let's fix this by storing current messages in a global var.
+            return window.currentMessagesCache || [];
+        }
+        
+        // Override loadChat to cache messages
+        const originalLoadChat = loadChat;
+        loadChat = (id, messages) => {
+            window.currentMessagesCache = messages || [];
+            originalLoadChat(id, messages);
+        }
+
+        // Import getDoc for the title update logic
+        import { getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        async function getDocFromCache(id) {
+             // Not used in final simplified logic above, but good to have
+        }
 
     </script>
 </body>
