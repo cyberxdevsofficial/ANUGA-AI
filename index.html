@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anuga AI</title>
-    <!-- Tailwind CSS for styling -->
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
         .chat-container { height: calc(100vh - 180px); overflow-y: auto; scroll-behavior: smooth; }
@@ -18,300 +17,190 @@
         .ai-msg img { max-width: 100%; border-radius: 8px; margin-top: 10px; display: block; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid #3b82f6; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #475569; }
     </style>
 </head>
+
 <body class="flex flex-col h-screen">
 
-    <!-- Login Overlay -->
-    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
-        <div class="text-center p-8 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700 max-w-md w-full mx-4">
-            <h1 class="text-4xl font-bold text-blue-500 mb-2">Anuga AI</h1>
-            <p class="text-slate-400 mb-8">Your intelligent assistant for Chat, Text & Images.</p>
-            <button id="google-login-btn" class="w-full bg-white text-slate-900 font-semibold py-3 px-4 rounded-lg hover:bg-gray-100 transition duration-200 flex items-center justify-center gap-3">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="w-5 h-5">
-                Sign in with Google
-            </button>
-            <p id="login-error" class="text-red-400 mt-4 text-sm hidden"></p>
-        </div>
+<!-- Login -->
+<div id="login-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+    <div class="text-center p-8 bg-slate-800 rounded-2xl border border-slate-700 max-w-md w-full">
+        <h1 class="text-4xl font-bold text-blue-500 mb-2">Anuga AI</h1>
+        <button id="google-login-btn" class="w-full bg-white text-black py-3 rounded-lg flex items-center justify-center gap-3">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5">
+            Sign in with Google
+        </button>
+        <p id="login-error" class="text-red-400 mt-4 text-sm hidden"></p>
     </div>
+</div>
 
-    <!-- Main App Interface (Hidden until logged in) -->
-    <div id="app-interface" class="hidden flex-col h-full max-w-4xl mx-auto w-full border-x border-slate-800 relative">
-        
-        <!-- Header -->
-        <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/95 backdrop-blur sticky top-0 z-10">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <i class="fa-solid fa-robot text-white text-sm"></i>
-                </div>
-                <h1 class="font-bold text-xl tracking-tight">Anuga AI</h1>
-            </div>
-            <div class="flex items-center gap-4">
-                <span id="user-name" class="text-sm text-slate-400 hidden sm:block">User</span>
-                <img id="user-avatar" src="" alt="User" class="w-8 h-8 rounded-full border border-slate-600 hidden">
-                <button id="logout-btn" class="text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-            </div>
-        </header>
+<!-- App -->
+<div id="app-interface" class="hidden flex-col h-full max-w-4xl mx-auto w-full">
 
-        <!-- Chat Area -->
-        <div id="chat-history" class="chat-container flex-1 p-4 flex flex-col gap-2">
-            <!-- Welcome Message -->
-            <div class="ai-msg message-bubble">
-                Hello! I'm Anuga AI. 👋<br>
-                Select a mode below and start interacting!
-            </div>
-        </div>
+<header class="p-4 border-b border-slate-800 flex justify-between">
+    <h1>Anuga AI</h1>
+    <button id="logout-btn">Logout</button>
+</header>
 
-        <!-- Input Area -->
-        <div class="p-4 bg-slate-900 border-t border-slate-800">
-            
-            <!-- Mode Selector -->
-            <div class="flex gap-2 mb-3 overflow-x-auto pb-1">
-                <button onclick="setMode('chat')" id="btn-chat" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-blue-600 text-white transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-comments"></i> Chat
-                </button>
-                <button onclick="setMode('text')" id="btn-text" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-pen-nib"></i> Text Gen
-                </button>
-                <button onclick="setMode('image')" id="btn-image" class="mode-btn flex-1 py-2 px-3 rounded-lg text-sm font-medium bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-image"></i> Image Gen
-                </button>
-            </div>
+<div id="chat-history" class="chat-container flex-1 p-4 flex flex-col">
+    <div class="ai-msg message-bubble">Hello! 👋</div>
+</div>
 
-            <!-- Input Form -->
-            <form id="input-form" class="relative flex items-center gap-2">
-                <input type="text" id="user-input" placeholder="Type your message..." 
-                    class="w-full bg-slate-800 text-white border border-slate-700 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition placeholder-slate-500">
-                
-                <button type="submit" class="absolute right-2 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition w-10 h-10 flex items-center justify-center">
-                    <i class="fa-solid fa-paper-plane"></i>
-                </button>
-            </form>
-            <p id="mode-indicator" class="text-xs text-slate-500 mt-2 text-center">Current Mode: Chatting with PowerBrain AI</p>
-        </div>
-    </div>
+<div class="p-4">
+    <button onclick="setMode('chat')">Chat</button>
+    <button onclick="setMode('text')">Text</button>
+    <button onclick="setMode('image')">Image</button>
 
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <form id="input-form" class="flex gap-2 mt-2">
+        <input id="user-input" class="w-full p-2 bg-slate-800 rounded">
+        <button type="submit">Send</button>
+    </form>
+</div>
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAMOO_h3b-dYognoDEl9udim-cD4ZOBpXs",
-            authDomain: "anuga-ai.firebaseapp.com",
-            projectId: "anuga-ai",
-            storageBucket: "anuga-ai.firebasestorage.app",
-            messagingSenderId: "853496698656",
-            appId: "1:853496698656:web:500862c1e813b37c25a945"
-        };
+</div>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // DOM Elements
-        const loginOverlay = document.getElementById('login-overlay');
-        const appInterface = document.getElementById('app-interface');
-        const loginBtn = document.getElementById('google-login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userNameDisplay = document.getElementById('user-name');
-        const userAvatarDisplay = document.getElementById('user-avatar');
-        const loginError = document.getElementById('login-error');
-        
-        // Chat Elements
-        const chatHistory = document.getElementById('chat-history');
-        const inputForm = document.getElementById('input-form');
-        const userInput = document.getElementById('user-input');
-        const modeIndicator = document.getElementById('mode-indicator');
+const firebaseConfig = {
+    apiKey: "AIzaSy...",
+    authDomain: "anuga-ai.firebaseapp.com",
+    projectId: "anuga-ai"
+};
 
-        // State
-        let currentMode = 'chat'; // 'chat', 'text', 'image'
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-        // --- Authentication Logic ---
+const loginBtn = document.getElementById('google-login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const loginOverlay = document.getElementById('login-overlay');
+const appInterface = document.getElementById('app-interface');
 
-        loginBtn.addEventListener('click', () => {
-            signInWithPopup(auth, provider)
-                .then((result) => {
-                    console.log("Logged in:", result.user.email);
-                }).catch((error) => {
-                    console.error(error);
-                    loginError.textContent = error.message;
-                    loginError.classList.remove('hidden');
-                });
-        });
+loginBtn.onclick = () => signInWithPopup(auth, provider);
+logoutBtn.onclick = () => signOut(auth);
 
-        logoutBtn.addEventListener('click', () => {
-            signOut(auth).then(() => {
-                console.log("Logged out");
-            });
-        });
+onAuthStateChanged(auth, user => {
+    if (user) {
+        loginOverlay.classList.add('hidden');
+        appInterface.classList.remove('hidden');
+        appInterface.classList.add('flex');
+    } else {
+        loginOverlay.classList.remove('hidden');
+        appInterface.classList.add('hidden');
+    }
+});
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // User is signed in
-                loginOverlay.classList.add('hidden');
-                appInterface.classList.remove('hidden');
-                appInterface.classList.add('flex');
-                
-                userNameDisplay.textContent = user.displayName;
-                userAvatarDisplay.src = user.photoURL;
-                userAvatarDisplay.classList.remove('hidden');
-                userNameDisplay.classList.remove('hidden');
+const chatHistory = document.getElementById('chat-history');
+const inputForm = document.getElementById('input-form');
+const userInput = document.getElementById('user-input');
+
+let currentMode = 'chat';
+
+window.setMode = (m) => currentMode = m;
+
+function appendMessage(role, content, isImage=false){
+    const div = document.createElement('div');
+    div.className = 'message-bubble ' + (role==='user'?'user-msg':'ai-msg');
+
+    if(isImage){
+        div.innerHTML = `<img src="${content}">`;
+    } else {
+        div.innerHTML = content;
+    }
+
+    chatHistory.appendChild(div);
+}
+
+function showLoading(){
+    const d=document.createElement('div');
+    d.id="loading";
+    d.innerHTML="...";
+    chatHistory.appendChild(d);
+}
+function removeLoading(){
+    document.getElementById('loading')?.remove();
+}
+
+/* =========================
+   FIXED API SECTION
+========================= */
+
+inputForm.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+
+    const query = userInput.value.trim();
+    if(!query) return;
+
+    appendMessage('user', query);
+    userInput.value="";
+    showLoading();
+
+    try{
+        let responseText="";
+        let isImage=false;
+
+        if(currentMode==='image'){
+            const res = await fetch(`https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(query)}`);
+            if(!res.ok) throw new Error("Image API failed");
+
+            let data;
+            try{ data = await res.json(); }
+            catch{ data = await res.text(); }
+
+            if(typeof data==="string" && data.startsWith("http")){
+                responseText=data;
+            } else if(data.url){
+                responseText=data.url;
+            } else if(data.image){
+                responseText=data.image;
             } else {
-                // User is signed out
-                loginOverlay.classList.remove('hidden');
-                appInterface.classList.add('hidden');
-                appInterface.classList.remove('flex');
+                throw new Error("Invalid image response");
             }
-        });
 
-        // --- UI Logic ---
-
-        window.setMode = (mode) => {
-            currentMode = mode;
-            
-            // Update Buttons
-            document.querySelectorAll('.mode-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-slate-800', 'text-slate-400');
-            });
-            
-            const activeBtn = document.getElementById(`btn-${mode}`);
-            activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
-            activeBtn.classList.add('bg-blue-600', 'text-white');
-
-            // Update Placeholder & Indicator
-            const indicatorText = document.getElementById('mode-indicator');
-            if (mode === 'chat') {
-                userInput.placeholder = "Ask anything...";
-                indicatorText.textContent = "Current Mode: Chatting with PowerBrain AI";
-            } else if (mode === 'text') {
-                userInput.placeholder = "Enter prompt for text generation...";
-                indicatorText.textContent = "Current Mode: Text Generation (Pollination)";
-            } else if (mode === 'image') {
-                userInput.placeholder = "Describe the image you want...";
-                indicatorText.textContent = "Current Mode: Image Generation";
-            }
-            
-            userInput.focus();
-        };
-
-        function appendMessage(role, content, isImage = false) {
-            const div = document.createElement('div');
-            div.className = `message-bubble ${role === 'user' ? 'user-msg' : 'ai-msg'}`;
-            
-            if (isImage) {
-                div.innerHTML = `<p class="mb-2 text-sm opacity-80">Here is your image:</p><img src="${content}" alt="Generated Image" onload="scrollToBottom()">`;
-            } else {
-                // Simple newline to break conversion
-                div.innerHTML = content.replace(/\n/g, '<br>');
-            }
-            
-            chatHistory.appendChild(div);
-            scrollToBottom();
+            isImage=true;
         }
 
-        function showLoading() {
-            const div = document.createElement('div');
-            div.id = 'loading-bubble';
-            div.className = 'message-bubble ai-msg';
-            div.innerHTML = '<div class="loader"></div>';
-            chatHistory.appendChild(div);
-            scrollToBottom();
-        }
+        else if(currentMode==='chat'){
+            const res = await fetch(`https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(query)}`);
+            if(!res.ok) throw new Error("Chat API failed");
 
-        function removeLoading() {
-            const loader = document.getElementById('loading-bubble');
-            if (loader) loader.remove();
-        }
+            let data;
+            try{ data = await res.json(); }
+            catch{ responseText = await res.text(); }
 
-        function scrollToBottom() {
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        // --- API Interaction Logic ---
-
-        inputForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const query = userInput.value.trim();
-            if (!query) return;
-
-            // 1. Show User Message
-            appendMessage('user', query);
-            userInput.value = '';
-            showLoading();
-
-            try {
-                let responseText = "";
-                let isImage = false;
-
-                // 2. Call API based on Mode
-                if (currentMode === 'image') {
-                    // Image Generation
-                    const apiUrl = `https://dtz-ai-api-new.vercel.app/api/ai/ai-image?prompt=${encodeURIComponent(query)}`;
-                    
-                    // Note: Most image APIs return the image URL directly or JSON with URL. 
-                    // Assuming this specific endpoint returns the direct image URL string or JSON { url: "..." }
-                    // We will fetch and check.
-                    const res = await fetch(apiUrl);
-                    const data = await res.json(); // Assuming JSON response first
-                    
-                    // Handling different possible return structures from generic image APIs
-                    if (data.url) {
-                        responseText = data.url;
-                    } else if (data.image) {
-                        responseText = data.image;
-                    } else if (typeof data === 'string' && data.startsWith('http')) {
-                        responseText = data;
-                    } else {
-                        // Fallback if it returns raw image blob (unlikely for this setup but possible)
-                        // For now, assume it returns a JSON with a URL field based on typical Vercel AI wrappers
-                        // If the API returns the URL directly as text:
-                         responseText = await res.text();
-                    }
-                    
-                    isImage = true;
-
-                } else if (currentMode === 'chat') {
-                    // Chatting (PowerBrain)
-                    const apiUrl = `https://www.movanest.xyz/v2/powerbrainai?query=${encodeURIComponent(query)}`;
-                    const res = await fetch(apiUrl);
-                    const data = await res.json();
-                    
-                    // Requirement: "answer is in result"
-                    responseText = data.result || "No response received.";
-
-                } else if (currentMode === 'text') {
-                    // Text Generating (Pollination)
-                    const apiUrl = `https://www.movanest.xyz/v2/pollination?text=${encodeURIComponent(query)}`;
-                    const res = await fetch(apiUrl);
-                    const data = await res.json();
-                    
-                    // Requirement: "answer is in result"
-                    responseText = data.result || "No response received.";
-                }
-
-                // 3. Display AI Response
-                removeLoading();
-                appendMessage('ai', responseText, isImage);
-
-            } catch (error) {
-                removeLoading();
-                console.error(error);
-                appendMessage('ai', "Sorry, I encountered an error connecting to the service.");
+            if(!responseText){
+                responseText = data?.result || data?.message || "No response";
             }
-        });
+        }
 
-    </script>
+        else if(currentMode==='text'){
+            const res = await fetch(`https://www.movanest.xyz/v2/pollination?text=${encodeURIComponent(query)}`);
+            if(!res.ok) throw new Error("Text API failed");
+
+            let data;
+            try{ data = await res.json(); }
+            catch{ responseText = await res.text(); }
+
+            if(!responseText){
+                responseText = data?.result || data?.message || "No response";
+            }
+        }
+
+        removeLoading();
+        appendMessage('ai', responseText, isImage);
+
+    } catch(err){
+        removeLoading();
+        appendMessage('ai', "⚠️ Error: " + err.message);
+    }
+});
+</script>
+
 </body>
 </html>
